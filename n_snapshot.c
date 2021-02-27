@@ -3,9 +3,12 @@
 /*
 
 structure snap array:
-[0 ... 3] snap
-[] amount snap
-[] table snap starts
+[0 ... 3] 'snap'
+[4] amount snap
+[5] offset
+[6] cursor
+[7]
+[8 ... 264] table snap starts
 [] snaps
 
 structure snap:
@@ -124,7 +127,7 @@ void n_snapshot_init_canvas(t_n_snapshot *x)
       SETFLOAT(a + 3, (t_float) x->fs);
       SETFLOAT(a + 4, (t_float) x->fdx); // x0
       SETFLOAT(a + 5, (t_float) (i * x->height) + x->fdy); // y0
-      SETSYMBOL(a + 6, gensym("[...][................]")); // text
+      SETSYMBOL(a + 6, gensym(".")); // text
       outlet_anything(x->out, gensym("cnv"), 7, a);
     }
 }
@@ -201,6 +204,8 @@ void n_snapshot_scroll_f(t_n_snapshot *x, t_floatarg f)
   if      (f < 0) f = 0;
   else if (f > 1) f = 1;
   x->offset = f * x->scroll_max; 
+
+  // display
   n_snapshot_display_canvas(x);
 }
 
@@ -224,6 +229,7 @@ void n_snapshot_scroll_up(t_n_snapshot *x, t_floatarg f)
 	x->offset = x->cursor - x->rows + 1;
     }
 
+  // display
   n_snapshot_display_canvas(x);
 
   // sl
@@ -254,6 +260,7 @@ void n_snapshot_scroll_down(t_n_snapshot *x, t_floatarg f)
       AF_CLIP_MAX(x->scroll_max, x->offset);
     }
 
+  // display
   n_snapshot_display_canvas(x);
 
   // sl
@@ -359,7 +366,7 @@ int n_snapshot_validate_snaparray(t_n_snapshot *x)
 }
 
 //----------------------------------------------------------------------------//
-int n_snapshot_init_snaparray(t_n_snapshot *x)
+void n_snapshot_init_snaparray(t_n_snapshot *x)
 {
   int i;
   garray_resize(x->g_a, SNAPS_START);
@@ -377,7 +384,7 @@ int n_snapshot_init_snaparray(t_n_snapshot *x)
 
   for (i = 0; i < MAX_SNAPS; i++)
     {
-      sprintf(x->snap_names[i],"..........");
+      sprintf(x->snap_names[i],"");
     }
 }
 
@@ -385,6 +392,9 @@ int n_snapshot_init_snaparray(t_n_snapshot *x)
 void n_snapshot_init(t_n_snapshot *x, t_symbol *s)
 {
   t_atom a[2];
+
+  post("init: %s",s->s_name);
+
 
   // canvas
   n_snapshot_init_canvas(x); // < -remove this
@@ -399,16 +409,19 @@ void n_snapshot_init(t_n_snapshot *x, t_symbol *s)
     }
 
 
+  // scroll
   x->scroll_max = MAX_SNAPS - x->rows;
   AF_CLIP_MIN(0, x->scroll_max);
   x->scroll_clip = MAX_SNAPS - 1;
   AF_CLIP_MAX(x->rows - 1, x->scroll_clip);
-
   x->offset = 0;
   x->cursor = 0;
 
+  // display
+  n_snapshot_display_canvas(x);
+
   // sl
-  SETFLOAT(a, (t_float)0);
+  SETFLOAT(a, (t_float)x->offset / (MAX_SNAPS - x->rows));
   outlet_anything(x->out, gensym("sl"), 1, a);
 }
 
