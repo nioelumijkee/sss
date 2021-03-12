@@ -1,0 +1,13 @@
+#N canvas 623 64 667 652 10;
+#X obj 277 44 example-instrument-1 0;
+#X obj 276 124 example-instrument-1 1;
+#X obj 38 41 ss_manager;
+#X obj 276 216 example-instrument-2 2;
+#X obj 274 297 example-instrument-3 3;
+#X msg 252 20 0;
+#X msg 284 19 1;
+#X obj 38 191 bng 15 250 50 0 empty empty init 17 7 0 10 -262144 -1
+-1;
+#X connect 2 0 7 0;
+#X connect 5 0 0 0;
+#X connect 6 0 0 0;
