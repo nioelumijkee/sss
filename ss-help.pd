@@ -1,4 +1,4 @@
-#N canvas 623 64 667 652 10;
+#N canvas 697 92 667 652 10;
 #X obj 277 44 example-instrument-1 0;
 #X obj 276 124 example-instrument-1 1;
 #X obj 38 41 ss_manager;
