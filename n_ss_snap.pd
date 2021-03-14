@@ -1,0 +1,18 @@
+#N canvas 0 112 680 472 12;
+#X obj 158 246 inlet snap;
+#X text 265 46 2) dollar one \$1;
+#X obj 378 221 r ss-get-dollarzero;
+#X obj 378 289 s ss-get-dollarzero-receive;
+#X obj 378 266 i \$1;
+#X obj 378 244 sel \$2;
+#X text 156 210 switch snap's;
+#X text 407 190 get dollarzero;
+#X text 265 67 3) number parameters in snap;
+#X obj 158 268 * \$3;
+#X obj 158 290 s \$1-load-state-par;
+#X text 265 26 1) dollar zero \$0;
+#X connect 0 0 9 0;
+#X connect 2 0 5 0;
+#X connect 4 0 3 0;
+#X connect 5 0 4 0;
+#X connect 9 0 10 0;

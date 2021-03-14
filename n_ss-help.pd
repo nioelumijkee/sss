@@ -1,0 +1,38 @@
+#N canvas 298 192 1005 387 10;
+#X msg 548 55 0;
+#X msg 579 55 1;
+#X obj 480 39 r ss_init;
+#X msg 548 125 0;
+#X msg 579 125 1;
+#X obj 480 109 r ss_init;
+#X msg 548 195 0;
+#X msg 579 195 1;
+#X obj 480 179 r ss_init;
+#X msg 548 265 0;
+#X msg 579 265 1;
+#X obj 480 249 r ss_init;
+#X text 104 81 n_ss - save abstraction state.;
+#X obj 96 126 n_ss;
+#X obj 615 71 example1 0;
+#X obj 615 211 example2 2;
+#X obj 615 281 example2 3;
+#X obj 615 141 example1 1;
+#X text 19 195 The parent patch must contain 1 n_ss object. Each child
+object that must maintain its state contains the corresponding objects
+(look inside). The bangs load and save all object states to a file.
+It is important that all abstractions are numbered with unique numbers
+as an argument (example1 1 \, example2 2 \, another-abs 3 \, ...).
+, f 64;
+#X text 105 311 files are saved with the extension *.ss;
+#X connect 0 0 14 0;
+#X connect 1 0 14 0;
+#X connect 2 0 0 0;
+#X connect 3 0 17 0;
+#X connect 4 0 17 0;
+#X connect 5 0 3 0;
+#X connect 6 0 15 0;
+#X connect 7 0 15 0;
+#X connect 8 0 6 0;
+#X connect 9 0 16 0;
+#X connect 10 0 16 0;
+#X connect 11 0 9 0;
