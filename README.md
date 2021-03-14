@@ -1,4 +1,4 @@
-# ss - save state abstraction.
-### Another idea for saving state abstraction in Pure Data.
-see help file.  
+# n_ss - save abstraction state.
+### Another one idea for saving abstraction state in Pure Data.
+more info in help file.  
 
