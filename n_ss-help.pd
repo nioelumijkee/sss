@@ -1,4 +1,4 @@
-#N canvas 298 192 1005 387 10;
+#N canvas 230 119 1005 387 10;
 #X msg 548 55 0;
 #X msg 579 55 1;
 #X obj 480 39 r ss_init;
@@ -11,7 +11,7 @@
 #X msg 548 265 0;
 #X msg 579 265 1;
 #X obj 480 249 r ss_init;
-#X text 104 81 n_ss - save abstraction state.;
+#X text 104 31 n_ss - save abstraction state.;
 #X obj 96 126 n_ss;
 #X obj 615 71 example1 0;
 #X obj 615 211 example2 2;
@@ -23,7 +23,10 @@ object that must maintain its state contains the corresponding objects
 It is important that all abstractions are numbered with unique numbers
 as an argument (example1 1 \, example2 2 \, another-abs 3 \, ...).
 , f 64;
-#X text 105 311 files are saved with the extension *.ss;
+#X text 160 84 load file *.txt;
+#X msg 96 77 ./1.txt;
+#X msg 106 97 ./2.txt;
+#X text 105 311 files are saved with the extension *.txt;
 #X connect 0 0 14 0;
 #X connect 1 0 14 0;
 #X connect 2 0 0 0;
@@ -36,3 +39,5 @@ as an argument (example1 1 \, example2 2 \, another-abs 3 \, ...).
 #X connect 9 0 16 0;
 #X connect 10 0 16 0;
 #X connect 11 0 9 0;
+#X connect 20 0 13 0;
+#X connect 21 0 13 0;
