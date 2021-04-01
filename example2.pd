@@ -19,20 +19,20 @@
 #X obj 216 334 soundfiler;
 #X msg 216 316 read -resize \$1 \$2-ss-0;
 #X obj 647 77 n_ss_snap \$0 \$1 0;
-#X obj 267 107 n_ss_array \$1 0;
-#X obj 386 107 n_ss_array \$1 1;
 #X obj 216 293 pack s \$0;
 #X obj 335 241 pack s \$0;
 #X text 258 77 for array. n_ss_array \$1 number_array, f 38;
 #X text 448 27 for recall snaps. n_ss_snap \$0 \$1 number_parameters_in_snap
 ;
+#X obj 267 107 n_ss_array \$0 \$1 0;
+#X obj 386 107 n_ss_array \$0 \$1 1;
 #X connect 1 0 11 0;
 #X connect 2 0 3 0;
-#X connect 3 0 15 0;
+#X connect 3 0 13 0;
 #X connect 4 0 5 0;
 #X connect 7 0 8 0;
-#X connect 8 0 14 0;
+#X connect 8 0 12 0;
 #X connect 10 0 9 0;
-#X connect 14 0 10 0;
-#X connect 15 0 4 0;
+#X connect 12 0 10 0;
+#X connect 13 0 4 0;
 #X coords 0 -1 1 1 350 60 1 100 150;

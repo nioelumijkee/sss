@@ -1,8 +1,9 @@
-#N canvas 140 92 680 472 12;
-#X text 265 46 2) number array;
+#N canvas 0 174 680 472 12;
 #X obj 247 104 r ss-get-array;
 #X obj 247 148 s ss-get-array-receive;
-#X obj 247 126 pack \$1 \$2;
-#X text 265 26 1) dollar one \$1;
-#X connect 1 0 3 0;
-#X connect 3 0 2 0;
+#X text 265 46 2) dollar one \$1;
+#X text 265 26 1) dollar zero \$0;
+#X obj 247 126 pack \$1 \$2 \$3;
+#X text 265 66 3) number array;
+#X connect 0 0 4 0;
+#X connect 4 0 1 0;
