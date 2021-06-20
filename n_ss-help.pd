@@ -6,11 +6,11 @@
 #X text 83 171 files are saved with the extension *.txt;
 #X text 179 54 if file exist - nothing todo;
 #X obj 30 354 tgl 15 0 empty empty get_parameter 17 7 0 10 -262144
--1 -1 0 1;
+-1 -1 1 1;
 #X floatatom 48 530 5 0 0 1 id0(ins_id) - -;
 #X symbolatom 30 547 16 0 0 1 ins_name - -;
-#X obj 272 394 nbx 5 14 -1e+37 1e+37 0 0 empty empty automatisation
-0 -8 0 10 -262144 -1 -1 0 256;
+#X obj 272 367 nbx 5 14 -1e+37 1e+37 0 0 empty empty automatisation
+0 -8 0 10 -262144 -1 -1 33 256;
 #X obj 167 245 n_ss;
 #X obj 167 263 n_ss_array;
 #X obj 167 281 n_ss_par;
@@ -27,7 +27,7 @@
 #X msg 64 133 save_as;
 #X msg 130 133 save;
 #X msg 179 133 load;
-#X msg 27 191 2.txt;
+#X msg 27 191 empty;
 #X text 178 14 n_ss - save state objects and automatisation parameters.
 ;
 #X obj 30 374 s ss_get_par;
@@ -158,10 +158,16 @@
 #X restore 452 407 pd save/load;
 #X obj 543 423 example2 4;
 #X text 731 59 for example:;
+#X obj 287 388 bng 15 250 50 0 empty empty automate_this 17 7 0 10
+-262144 -1 -1;
+#X obj 287 408 list;
+#X obj 272 444 s;
+#X msg 287 426 symbol \$2_r_\$4;
 #X connect 0 0 36 0;
 #X connect 1 0 36 0;
 #X connect 2 0 23 0;
 #X connect 6 0 25 0;
+#X connect 9 0 55 0;
 #X connect 14 0 20 0;
 #X connect 15 0 21 0;
 #X connect 16 0 22 0;
@@ -172,6 +178,7 @@
 #X connect 21 0 2 0;
 #X connect 22 0 2 0;
 #X connect 26 0 27 0;
+#X connect 26 0 54 1;
 #X connect 27 0 8 0;
 #X connect 27 1 7 0;
 #X connect 27 2 28 0;
@@ -190,3 +197,6 @@
 #X connect 48 0 50 0;
 #X connect 49 0 50 0;
 #X connect 50 0 51 0;
+#X connect 53 0 54 0;
+#X connect 54 0 56 0;
+#X connect 56 0 55 1;
