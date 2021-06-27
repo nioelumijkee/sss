@@ -104,6 +104,7 @@ def create_ss(lpd, ins_name):
     obj_n = 0
     arr = []
     arr_n = 0
+    all_snap = 1
     for s in res:
         if s[0] == '#X' and s[1] == 'obj':
 
@@ -149,8 +150,13 @@ def create_ss(lpd, ins_name):
                 obj.append(s)
                 print('find: %s %s' % (s[4], s[13]))
 
+        if s[0] == '#X' and s[1] == 'text' and s[4] == 'snap' and len(s) == 6:
+            all_snap = int(s[5][:-1])
+            print('all snap = %d' % (all_snap))
+
+
     # add array for par
-    arr_for_par_s = '#X obj 10 114 table \$0_ss_a_0 %d;' % (ALL_SNAP * obj_n)
+    arr_for_par_s = '#X obj 10 114 table \$0_ss_a_0 %d;' % (all_snap * obj_n)
     arr_for_par = arr_for_par_s.split()
     obj.append(arr_for_par)
     print('add : table %s (par)' % (arr_for_par[5]))
@@ -173,7 +179,7 @@ def create_ss(lpd, ins_name):
     st += 1; insert_string('#X text 10 30 delete this canvas if you change structure path;', res, st)
     st += 1; insert_string('#X text 10 50 and run: toss.py <%s.pd> <%s.pd>;' % (ins_name,ins_name), res, st)
     st += 1; insert_string('#X obj 10 70 r \$0_ss_snap;', res, st)
-    st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d;' % (ins_name, obj_n), res, st)
+    st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d %d;' % (ins_name, obj_n, all_snap - 1), res, st)
     st += 1; insert_string(arr_for_par_s, res, st)
 
     # insert odj's and array's
@@ -313,11 +319,6 @@ def parse_pd(filename_in, filename_out):
     # write
     pdlist2file(filename_out, pd)
 
-
-# ---------------------------------------------------------------------------- #
-# constant
-global ALL_SNAP
-ALL_SNAP = 256
 
 # ---------------------------------------------------------------------------- #
 filename_in  = None

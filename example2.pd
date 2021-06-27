@@ -17,15 +17,13 @@
 #X obj 425 120 vradio 8 1 0 4 \$0_s_7 \$0_r_7 empty 0 -8 0 10 -262144 -1 -1 0;
 #X obj 445 120 vradio 8 1 0 4 \$0_s_8 \$0_r_8 empty 0 -8 0 10 -262144 -1 -1 0;
 #X obj 465 120 vradio 8 1 0 4 \$0_s_9 \$0_r_9 empty 0 -8 0 10 -262144 -1 -1 0;
-#X connect 4 0 7 0;
-#X coords 0 -1 1 1 500 72 1 100 100;
 #N canvas 20 20 900 500 ss 0;
 #X text 10 10 automatic created by toss.py;
 #X text 10 30 delete this canvas if you change structure path;
 #X text 10 50 and run: toss.py <example2.pd> <example2.pd>;
 #X obj 10 70 r \$0_ss_snap;
-#X obj 10 92 n_ss_snap example2 \$0 \$1 10;
-#X obj 10 114 table \$0_ss_a_0 2560;
+#X obj 10 92 n_ss_snap example2 \$0 \$1 10 3;
+#X obj 10 114 table \$0_ss_a_0 40;
 #X obj 10 140 n_ss_par example2 \$0 \$1 0 nbx par_0 0 100;
 #X obj 10 168 n_ss_par example2 \$0 \$1 1 nbx par_1 0 100;
 #X obj 10 196 n_ss_par example2 \$0 \$1 2 nbx par_2 0 100;
@@ -40,3 +38,6 @@
 #X obj 10 448 n_ss_array example2 \$0 \$1 1 \$0_a_ss;
 #X connect 3 0 4 0;
 #X restore 20 50 pd ss;
+#X text 112 21 snap 4;
+#X connect 4 0 7 0;
+#X coords 0 -1 1 1 500 72 1 100 100;
