@@ -2,15 +2,15 @@
 #X msg 410 66 0;
 #X msg 441 66 1;
 #X obj 27 170 n_ss;
-#X text 160 84 load file *.txt;
+#X text 149 42 load file *.txt;
 #X text 83 171 files are saved with the extension *.txt;
-#X text 179 54 if file exist - nothing todo;
-#X obj 30 354 tgl 15 0 empty empty get_parameter 17 7 0 10 -262144
+#X text 175 75 if file exist - nothing todo;
+#X obj 28 402 tgl 15 0 empty empty get_parameter 17 7 0 10 -262144
 -1 -1 0 1;
-#X floatatom 48 530 5 0 0 1 id0(ins_id) - -;
-#X symbolatom 30 547 16 0 0 1 ins_name - -;
-#X obj 272 367 nbx 5 14 -1e+37 1e+37 0 0 empty empty automatisation
-0 -8 0 10 -262144 -1 -1 0 256;
+#X floatatom 46 578 5 0 0 1 id0(ins_id) - -;
+#X symbolatom 28 595 16 0 0 1 ins_name - -;
+#X obj 270 415 nbx 5 14 -1e+37 1e+37 0 0 empty empty automatisation
+0 -8 0 10 -262144 -1 -1 12 256;
 #X obj 167 245 n_ss;
 #X obj 167 263 n_ss_array;
 #X obj 167 281 n_ss_par;
@@ -21,24 +21,24 @@
 -1;
 #X obj 179 113 bng 15 250 50 0 empty empty load 17 7 0 10 -257985 -1
 -1;
-#X msg 27 53 load_file ./not.txt;
-#X msg 38 71 load_file ./1.txt;
-#X msg 48 89 load_file ./2.txt;
+#X msg 49 75 load_file ./not.txt;
+#X msg 27 35 load_file ./1.txt;
+#X msg 37 53 load_file ./2.txt;
 #X msg 64 133 save_as;
 #X msg 130 133 save;
 #X msg 179 133 load;
-#X msg 27 191 2.txt;
+#X msg 27 191 1.txt;
 #X text 178 14 n_ss - save state objects and automatisation parameters.
 ;
-#X obj 30 374 s ss_get_par;
-#X obj 30 392 r ss_act_par;
-#X obj 30 410 unpack s f f f s s f f;
-#X floatatom 66 513 5 0 0 1 id1(ins_number) - -;
-#X floatatom 85 496 5 0 0 1 number - -;
-#X floatatom 140 445 5 0 0 1 lower - -;
-#X floatatom 159 428 5 0 0 1 upper - -;
-#X symbolatom 103 479 16 0 0 1 type - -;
-#X symbolatom 122 462 16 0 0 1 name - -;
+#X obj 28 422 s ss_get_par;
+#X obj 28 440 r ss_act_par;
+#X obj 28 458 unpack s f f f s s f f;
+#X floatatom 64 561 5 0 0 1 id1(ins_number) - -;
+#X floatatom 83 544 5 0 0 1 number - -;
+#X floatatom 138 493 5 0 0 1 lower - -;
+#X floatatom 157 476 5 0 0 1 upper - -;
+#X symbolatom 101 527 16 0 0 1 type - -;
+#X symbolatom 120 510 16 0 0 1 name - -;
 #X obj 543 103 example1 1;
 #X obj 543 213 example1 2;
 #N canvas 0 50 450 300 save/load 0;
@@ -158,15 +158,25 @@
 #X restore 410 407 pd save/load;
 #X obj 543 423 example2 4;
 #X text 731 59 for example:;
-#X obj 287 388 bng 15 250 50 0 empty empty automate_this 17 7 0 10
+#X obj 285 436 bng 15 250 50 0 empty empty automate_this 17 7 0 10
 -262144 -1 -1;
-#X obj 287 408 list;
-#X obj 272 444 s;
-#X msg 287 426 symbol \$2_r_\$4;
+#X obj 285 456 list;
+#X obj 270 492 s;
+#X msg 285 474 symbol \$2_r_\$4;
 #X msg 472 276 2;
 #X msg 503 276 3;
 #X msg 472 386 2;
 #X msg 503 386 3;
+#X msg 543 13 load 0;
+#X msg 552 32 load 1;
+#X msg 573 54 save 0;
+#X msg 582 73 save 1;
+#X text 611 21 load snap;
+#X text 637 60 save snap;
+#X text 41 341 for automatisation. set on 'get_parameter' and change
+one.;
+#X text 49 363 after \, click 'automate_this' and change 'automatisation'
+;
 #X connect 0 0 36 0;
 #X connect 1 0 36 0;
 #X connect 2 0 23 0;
@@ -208,3 +218,7 @@
 #X connect 58 0 46 0;
 #X connect 59 0 50 0;
 #X connect 60 0 50 0;
+#X connect 61 0 34 0;
+#X connect 62 0 34 0;
+#X connect 63 0 34 0;
+#X connect 64 0 34 0;
