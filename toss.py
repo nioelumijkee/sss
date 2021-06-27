@@ -1,77 +1,38 @@
 #!/usr/bin/python3
-#
 
 # ---------------------------------------------------------------------------- #
 import sys
 import os
 
-
-# ---------------------------------------------------------------------------- #
-# pd lines
-
-## canvas
-#N canvas ox oy w h name|(subpath) view;
-#X restore r_ox r_oy pd name|(subpath);
-#X coords 0 -1 1 1 350 60 1 100 150;
-
-## object ss
-#X obj ox oy obj_name [...];
-
-## object ss
-#X obj ox oy nbx W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? logW;
-#X obj ox oy vsl W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
-#X obj ox oy hsl W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
-#X obj ox oy tgl size ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
-#X obj ox oy hradio size ? ? nc snd rcv lab ldx ldy fn fs bc fc lc ?;
-#X obj ox oy vradio size ? ? nc snd rcv lab ldx ldy fn fs bc fc lc ?;
-
-## object pd
-#X text ox oy text text text, f w;
-#X msg ox oy text;
-#X floatatom ox oy w lower upper side snd rcv lab;
-#X symbolatom ox oy w lower upper side snd rcv lab;
-
-## array
-#N canvas ox oy w h (subpath) view;
-#X array name size float f;
-#A [...];
-#X coords f f f f f f f f;
-#X restore r_ox r_oy graph;
-
-## connect
-#X connect obj_out out obj_in in;
-
-
-
 # ---------------------------------------------------------------------------- #
 def file2pdlist(filename):
-    # open file
+    "convert pd file to list"
     try:
-        fs = open(filename)
+        fd = open(filename)
     except:
         print("error open %s" % (filename))
         exit()
 
-    l = fs.readlines()
+    l = fd.readlines()
     res = []
     s = ''
     for i in l:
         i = i.strip()
         s = s + ' ' + i
         if i[-1] == ';':
-            s = s.strip()
-            res.append(s.split())
+            s = s.strip().split()
+            res.append(s)
             s = ''
-    print('done parse %s' % (filename))
-    fs.close()
+    fd.close()
+    print("file %s to list : done." % (filename))
     return(res)
 
 
 # ---------------------------------------------------------------------------- #
 def pdlist2file(filename, l):
-    # open file
+    "convert list to pd file"
     try:
-        fs = open(filename, 'w')
+        fd = open(filename, 'w')
     except:
         print("error open %s" % (filename))
         exit()
@@ -81,24 +42,69 @@ def pdlist2file(filename, l):
         for j in i:
             s = s + ' ' + j
         s = s.strip()
-        fs.write(s)
-        fs.write('\n')
-    print('done write %s' % (filename))
-    fs.close()
+        fd.write(s)
+        fd.write('\n')
+    fd.close()
+    print("list to file %s : done." % (filename))
+
+# ---------------------------------------------------------------------------- #
+def print_list(l):
+    "print list"
+    s = ''
+    for i in l:
+        s = s + ' ' + i
+        if len(s) > 80:
+            s = s[:74]
+            s = s + ' >'
+            break
+    return(s.strip())
+
+# ---------------------------------------------------------------------------- #
+def insert_string(s, l , pos):
+    "insert string to list"
+    l.insert(pos, s.split())
 
 
 # ---------------------------------------------------------------------------- #
-# find ss objects and create canvas 'save state'
-def create_ss(l, ins_name):
-
+def create_ss(lpd, ins_name):
+    "remove old ps ss, find ss objects and create new pd ss"
     res = []
+
+    #####################################################################
+    # find and remove ss
+    num = 0
+    find = 0
+    st = -1
+    for s in lpd:
+        if find == 0 and s[0] == '#N' and s[1] == 'canvas' and s[6] == 'ss':
+            find = 1
+            st = num
+        
+        if find == 0:
+            res.append(s)
+            print("%-4d +" % (num), print_list(s))
+        else:
+            print("%-4d -" % (num), print_list(s))
+
+        if find == 1 and s[0] == '#X' and s[1] == 'restore' and s[5] == 'ss;':
+            find = 0
+
+        num += 1
+
+    if st == -1:
+        st = num
+        print('pd ss not found. st = ', st)
+    else:
+        print('pd ss found. st = ', st)
+
+
+    #####################################################################
+    # find ss objects
     obj = []
     obj_n = 0
     arr = []
     arr_n = 0
-
-    # find ss objects
-    for s in l:
+    for s in res:
         if s[0] == '#X' and s[1] == 'obj':
 
             if s[4] == 'tgl':
@@ -144,31 +150,31 @@ def create_ss(l, ins_name):
                 print('find: %s %s' % (s[4], s[13]))
 
     # add array for par
-    arr_for_par = '#X obj 10 114 table \$0_ss_a_0 %d;' % (ALL_SNAP * obj_n)
-    arr_for_par_s = arr_for_par.split()
-    obj.append(arr_for_par_s)
-    print('    : table %s' % (arr_for_par_s[5]))
+    arr_for_par_s = '#X obj 10 114 table \$0_ss_a_0 %d;' % (ALL_SNAP * obj_n)
+    arr_for_par = arr_for_par_s.split()
+    obj.append(arr_for_par)
+    print('add : table %s (par)' % (arr_for_par[5]))
 
 
     # find array objects
-    for s in l:
+    for s in res:
         if s[0] == '#X' and s[1] == 'array':
             arr_name = s[2]
             if arr_name[-2] == 's' and arr_name[-1] == 's':
                 obj.append(s)
-                print('find: %s %s' % (s[1], s[2]))
+                print('find: array %s' % (s[2]))
 
 
-    # insert canvas 'ss'
-    #                   ox oy w   h      open
-    res.append('#N canvas 20 20 900 500 ss 0;')
-    res.append('#X text 10 10 automatic created by toss.py;')
-    res.append('#X text 10 30 delete this canvas if you change structure path;')
-    res.append('#X text 10 50 and run: toss.py <%s.pd> <%s.pd>;' %
-               (ins_name,ins_name))
-    res.append('#X obj 10 70 r \$0_ss_snap;')
-    res.append('#X obj 10 92 n_ss_snap %s \$0 \$1 %d;' % (ins_name, obj_n))
-    res.append(arr_for_par)
+
+    #####################################################################
+    # insert pd ss
+    insert_string('#N canvas 20 20 900 500 ss 0;', res , st)
+    st += 1; insert_string('#X text 10 10 automatic created by toss.py;', res, st)
+    st += 1; insert_string('#X text 10 30 delete this canvas if you change structure path;', res, st)
+    st += 1; insert_string('#X text 10 50 and run: toss.py <%s.pd> <%s.pd>;' % (ins_name,ins_name), res, st)
+    st += 1; insert_string('#X obj 10 70 r \$0_ss_snap;', res, st)
+    st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d;' % (ins_name, obj_n), res, st)
+    st += 1; insert_string(arr_for_par_s, res, st)
 
     # insert odj's and array's
     obj_ox = 10
@@ -200,7 +206,7 @@ def create_ss(l, ins_name):
                 ins_name,
                 obj_n,
                 i[9])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
              
         elif i[4] == 'hradio':
@@ -210,7 +216,7 @@ def create_ss(l, ins_name):
                 obj_n,
                 i[11],
                 i[8])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
              
         elif i[4] == 'vradio':
@@ -220,7 +226,7 @@ def create_ss(l, ins_name):
                 obj_n,
                 i[11],
                 i[8])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
              
 
@@ -232,7 +238,7 @@ def create_ss(l, ins_name):
                 i[13],
                 i[7],
                 i[8])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
              
         elif i[4] == 'hsl':
@@ -243,7 +249,7 @@ def create_ss(l, ins_name):
                 i[13],
                 i[7],
                 i[8])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
              
         elif i[4] == 'vsl':
@@ -254,7 +260,7 @@ def create_ss(l, ins_name):
                 i[13],
                 i[7],
                 i[8])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
              
         # 1) ins name
@@ -263,14 +269,13 @@ def create_ss(l, ins_name):
         # 4) number
         # 5) name
 
-#X obj 10 114 table \$0_ss_a_0 %d;
         elif i[4] == 'table':
             s = '#X obj %d %d n_ss_array %s \$0 \$1 %d %s;' % (
                 ox, oy,
                 ins_name,
                 arr_n,
                 i[5])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
             arr_n += 1
              
@@ -280,25 +285,21 @@ def create_ss(l, ins_name):
                 ins_name,
                 arr_n,
                 i[2])
-            res.append(s)
+            st += 1; insert_string(s, res, st)
             obj_n += 1
             arr_n += 1
              
-
-
-
     # end canvas and connect
-    res.append('#X connect 3 0 4 0;')
-    res.append('#X restore 20 50 pd ss;')
+    st += 1; insert_string('#X connect 3 0 4 0;', res, st)
+    st += 1; insert_string('#X restore 20 50 pd ss;', res, st)
 
-    # string to list
-    for i in res:
-        j = i.split()
-        l.append(j)
+    return(res)
 
 
 # ---------------------------------------------------------------------------- #
 def parse_pd(filename_in, filename_out):
+    "main parse function"
+
     # name
     ins_name = os.path.splitext(filename_in)[0]
 
@@ -307,7 +308,7 @@ def parse_pd(filename_in, filename_out):
     pd = file2pdlist(filename_in)
 
     # ss
-    create_ss(pd, ins_name)
+    pd = create_ss(pd, ins_name)
 
     # write
     pdlist2file(filename_out, pd)
@@ -319,9 +320,8 @@ global ALL_SNAP
 ALL_SNAP = 256
 
 # ---------------------------------------------------------------------------- #
-# arg
-filename_in  = ''
-filename_out = ''
+filename_in  = None
+filename_out = None
 try:
     filename_in  = sys.argv[1]
     filename_out = sys.argv[2]
@@ -330,3 +330,32 @@ except:
     exit()
 
 parse_pd(filename_in, filename_out)
+
+# ---------------------------------------------------------------------------- #
+# pd lines
+
+#N canvas ox oy w h name|(subpath) view;
+#X restore r_ox r_oy pd name|(subpath);
+#X coords 0 -1 1 1 350 60 1 100 150;
+
+#X obj ox oy obj_name [...];
+
+#X obj ox oy nbx W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? logW;
+#X obj ox oy vsl W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
+#X obj ox oy hsl W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
+#X obj ox oy tgl size ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
+#X obj ox oy hradio size ? ? nc snd rcv lab ldx ldy fn fs bc fc lc ?;
+#X obj ox oy vradio size ? ? nc snd rcv lab ldx ldy fn fs bc fc lc ?;
+
+#X text ox oy text text text, f w;
+#X msg ox oy text;
+#X floatatom ox oy w lower upper side snd rcv lab;
+#X symbolatom ox oy w lower upper side snd rcv lab;
+
+#N canvas ox oy w h (subpath) view;
+#X array name size float f;
+#A [...];
+#X coords f f f f f f f f;
+#X restore r_ox r_oy graph;
+
+#X connect obj_out out obj_in in;
