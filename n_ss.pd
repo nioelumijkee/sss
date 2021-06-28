@@ -1,4 +1,4 @@
-#N canvas 502 65 728 618 10;
+#N canvas 481 69 728 618 10;
 #X obj 228 135 savepanel;
 #X obj 228 171 t b a;
 #X msg 157 260 empty;
@@ -382,7 +382,7 @@
 #X msg 201 333 1;
 #X obj 186 393 moses, f 7;
 #X obj 225 598 s ss_init;
-#X obj 277 527 symbol;
+#X obj 277 518 symbol;
 #X obj 65 209 moses 1, f 57;
 #X obj 570 374 symbol;
 #X obj 330 479 n_array;
@@ -488,7 +488,7 @@
 #X text 532 479 label.;
 #X obj 225 414 t b b b, f 18;
 #X text 287 597 init.;
-#X text 336 567 print.;
+#X text 336 558 print.;
 #X msg 364 79 load ..........;
 #X obj 364 97 print -n;
 #X obj 264 97 t b b;
@@ -497,7 +497,7 @@
 #X obj 164 137 list \$0;
 #X obj 478 70 s \$0_ss_filename;
 #X obj 603 356 r \$0_ss_filename;
-#X obj 310 509 r \$0_ss_filename;
+#X obj 310 500 r \$0_ss_filename;
 #X obj 65 40 t b s b b s, f 67;
 #X obj 65 21 inlet filename;
 #X obj 65 190 tabread \$0_ss_buffer;
@@ -522,15 +522,17 @@
 #X obj 330 432 i \$0;
 #X msg 330 450 resize \$1_ss_buffer 1 \, resize \$1_ss_main 1, f 22
 ;
-#X obj 277 563 print -n;
+#X obj 277 554 print -n;
 #X obj 657 59 inlet local;
 #X obj 617 135 i \$0;
 #X msg 617 156 size \$1_ss_main;
 #X obj 617 177 n_array;
-#X msg 277 545 load \$1;
+#X msg 277 536 load \$1;
 #X obj 730 146 s \$0_ss_filename;
 #X obj 657 80 t b b b;
 #X msg 738 121 symbol local;
+#X obj 225 579 delay 50;
+#X text 128 584 for load local;
 #X connect 0 0 38 0;
 #X connect 2 0 10 1;
 #X connect 3 0 11 0;
@@ -544,7 +546,7 @@
 #X connect 11 0 10 0;
 #X connect 18 0 30 1;
 #X connect 19 0 30 0;
-#X connect 24 0 4 0;
+#X connect 24 0 68 0;
 #X connect 24 1 5 0;
 #X connect 24 2 57 0;
 #X connect 27 0 28 0;
@@ -590,6 +592,7 @@
 #X connect 66 1 27 0;
 #X connect 66 2 67 0;
 #X connect 67 0 65 0;
+#X connect 68 0 4 0;
 #X restore 85 161 pd load;
 #X text 555 179 [0] size file;
 #X obj 16 40 inlet;
@@ -615,10 +618,10 @@
 #X text 555 250 [1 + ofs + 3 ... x] data;
 #X msg 266 227 set empty;
 #X obj 85 180 t a a;
-#X obj 293 320 savestate;
+#X obj 293 299 savestate;
 #X obj 381 239 bng 15 250 50 0 empty empty save_local 17 7 0 10 -260097
 -1 -1;
-#X obj 344 339 spigot \$1;
+#X obj 353 342 spigot \$1;
 #X obj 293 363 spigot \$1;
 #X obj 16 61 route load_file load save save_as, f 34;
 #X obj 360 473 list prepend set;
@@ -628,6 +631,9 @@
 #X obj 360 453 list prepend;
 #X obj 360 514 n_array;
 #X obj 360 494 list trim;
+#X obj 439 328 s ss_save_local;
+#X obj 344 318 t b b;
+#X text 537 329 send to all.;
 #X connect 0 0 7 0;
 #X connect 1 0 2 0;
 #X connect 1 1 24 0;
@@ -653,7 +659,7 @@
 #X connect 32 0 5 0;
 #X connect 32 1 25 0;
 #X connect 33 0 36 0;
-#X connect 33 1 35 0;
+#X connect 33 1 46 0;
 #X connect 34 0 10 1;
 #X connect 35 0 34 0;
 #X connect 36 0 39 0;
@@ -669,4 +675,6 @@
 #X connect 41 0 42 1;
 #X connect 42 0 38 0;
 #X connect 44 0 43 0;
+#X connect 46 0 35 0;
+#X connect 46 1 45 0;
 #X coords 0 618 1 617 206 40 0;

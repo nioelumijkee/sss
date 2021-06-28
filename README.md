@@ -36,3 +36,4 @@ Another one idea for saving abstraction state in Pure Data.
     2. Save as - for saving as
     3. Load - for load state
 
+11. For local saving (not file) n_ss must be first argument equal 1.
