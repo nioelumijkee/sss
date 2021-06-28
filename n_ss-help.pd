@@ -1,4 +1,4 @@
-#N canvas 159 69 1076 622 10;
+#N canvas 229 67 1076 622 10;
 #X msg 410 66 0;
 #X msg 441 66 1;
 #X obj 27 170 n_ss;
@@ -10,7 +10,7 @@
 #X floatatom 46 578 5 0 0 1 id0(ins_id) - -;
 #X symbolatom 28 595 16 0 0 1 ins_name - -;
 #X obj 270 415 nbx 5 14 -1e+37 1e+37 0 0 empty empty automatisation
-0 -8 0 10 -262144 -1 -1 12 256;
+0 -8 0 10 -262144 -1 -1 0 256;
 #X obj 167 245 n_ss;
 #X obj 167 263 n_ss_array;
 #X obj 167 281 n_ss_par;
@@ -27,7 +27,7 @@
 #X msg 64 133 save_as;
 #X msg 130 133 save;
 #X msg 179 133 load;
-#X msg 27 191 1.txt;
+#X msg 27 191 ;
 #X text 178 14 n_ss - save state objects and automatisation parameters.
 ;
 #X obj 28 422 s ss_get_par;
