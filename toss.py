@@ -24,7 +24,8 @@ def file2pdlist(filename):
             res.append(s)
             s = ''
     fd.close()
-    print("file %s to list : done." % (filename))
+    if debug:
+        print("file %s to list : done." % (filename))
     return(res)
 
 
@@ -45,7 +46,8 @@ def pdlist2file(filename, l):
         fd.write(s)
         fd.write('\n')
     fd.close()
-    print("list to file %s : done." % (filename))
+    if debug:
+        print("list to file %s : done." % (filename))
 
 # ---------------------------------------------------------------------------- #
 def print_list(l):
@@ -82,9 +84,11 @@ def create_ss(lpd, ins_name):
         
         if find == 0:
             res.append(s)
-            print("%-4d +" % (num), print_list(s))
+            if debug:
+                print("%-4d +" % (num), print_list(s))
         else:
-            print("%-4d -" % (num), print_list(s))
+            if debug:
+                print("%-4d -" % (num), print_list(s))
 
         if find == 1 and s[0] == '#X' and s[1] == 'restore' and s[5] == 'ss;':
             find = 0
@@ -152,8 +156,6 @@ def create_ss(lpd, ins_name):
 
         if s[0] == '#X' and s[1] == 'text' and s[4] == 'snap' and len(s) == 6:
             all_snap = int(s[5][:-1])
-            print('all snap = %d' % (all_snap))
-
 
     # add array for par
     arr_for_par_s = '#X obj 10 114 table \$0_ss_a_0 %d;' % (all_snap * obj_n)
@@ -171,13 +173,12 @@ def create_ss(lpd, ins_name):
                 print('find: array %s' % (s[2]))
 
 
+    print('all snap = %d' % (all_snap))
 
     #####################################################################
     # insert pd ss
     insert_string('#N canvas 20 20 900 500 ss 0;', res , st)
-    st += 1; insert_string('#X text 10 10 automatic created by toss.py;', res, st)
-    st += 1; insert_string('#X text 10 30 delete this canvas if you change structure path;', res, st)
-    st += 1; insert_string('#X text 10 50 and run: toss.py <%s.pd> <%s.pd>;' % (ins_name,ins_name), res, st)
+    st += 1; insert_string('#X text 10 50 automatic created by toss.py;', res, st)
     st += 1; insert_string('#X obj 10 70 r \$0_ss_snap;', res, st)
     st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d %d;' % (ins_name, obj_n, all_snap - 1), res, st)
     st += 1; insert_string(arr_for_par_s, res, st)
@@ -296,7 +297,7 @@ def create_ss(lpd, ins_name):
             arr_n += 1
              
     # end canvas and connect
-    st += 1; insert_string('#X connect 3 0 4 0;', res, st)
+    st += 1; insert_string('#X connect 1 0 2 0;', res, st)
     st += 1; insert_string('#X restore 20 50 pd ss;', res, st)
 
     return(res)
@@ -308,6 +309,8 @@ def parse_pd(filename_in, filename_out):
 
     # name
     ins_name = os.path.splitext(filename_in)[0]
+    ins_name = ins_name.split('/')
+    ins_name = ins_name[-1]
 
     # file to list
     pd = []
@@ -321,6 +324,8 @@ def parse_pd(filename_in, filename_out):
 
 
 # ---------------------------------------------------------------------------- #
+global debug; debug = 0
+
 filename_in  = None
 filename_out = None
 try:
