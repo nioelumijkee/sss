@@ -27,7 +27,9 @@ Another one idea for saving abstraction state in Pure Data.
 
 7. Create another path.
 
-8. Add your object this and added to name object unique digital number. All objects 'ss' must be unique id in path.
+8. Add your object this. arguments:
+    +   unique number(for every 'ss' object in path)
+    +   number of snapshots.
 
 9. Add object 'n_ss'.
 

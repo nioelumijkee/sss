@@ -108,7 +108,6 @@ def create_ss(lpd, ins_name):
     obj_n = 0
     arr = []
     arr_n = 0
-    all_snap = 1
     for s in res:
         if s[0] == '#X' and s[1] == 'obj':
 
@@ -154,11 +153,8 @@ def create_ss(lpd, ins_name):
                 obj.append(s)
                 print('find: %s %s' % (s[4], s[13]))
 
-        if s[0] == '#X' and s[1] == 'text' and s[4] == 'snap' and len(s) == 6:
-            all_snap = int(s[5][:-1])
-
     # add array for par
-    arr_for_par_s = '#X obj 10 114 table \$0_ss_a_0 %d;' % (all_snap * obj_n)
+    arr_for_par_s = '#X obj 10 114 table \$0_ss_a_0;'
     arr_for_par = arr_for_par_s.split()
     obj.append(arr_for_par)
     print('add : table %s (par)' % (arr_for_par[5]))
@@ -173,14 +169,12 @@ def create_ss(lpd, ins_name):
                 print('find: array %s' % (s[2]))
 
 
-    print('all snap = %d' % (all_snap))
-
     #####################################################################
     # insert pd ss
     insert_string('#N canvas 20 20 900 500 ss 0;', res , st)
     st += 1; insert_string('#X text 10 50 automatic created by toss.py;', res, st)
     st += 1; insert_string('#X obj 10 70 r \$0_ss_snap;', res, st)
-    st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d %d;' % (ins_name, obj_n, all_snap - 1), res, st)
+    st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d \$2;' % (ins_name, obj_n), res, st)
     st += 1; insert_string(arr_for_par_s, res, st)
 
     # insert odj's and array's
