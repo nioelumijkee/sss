@@ -27,7 +27,7 @@
 #X msg 64 133 save_as;
 #X msg 130 133 save;
 #X msg 179 133 load;
-#X msg 27 191 1.txt;
+#X msg 27 191 empty;
 #X text 178 14 n_ss - save state objects and automatisation parameters.
 ;
 #X obj 28 422 s ss_get_par;
@@ -177,6 +177,7 @@ one.;
 #X obj 543 213 example1 2 2;
 #X obj 543 313 example2 3 4;
 #X obj 543 423 example2 4 4;
+#X text 669 529 object_name unique_id number_snaps;
 #X connect 0 0 34 0;
 #X connect 1 0 34 0;
 #X connect 2 0 23 0;
