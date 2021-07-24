@@ -1,33 +1,33 @@
-#N canvas 229 67 1076 622 10;
+#N canvas 258 62 1076 622 10;
 #X msg 410 66 0;
 #X msg 441 66 1;
 #X obj 27 170 n_ss;
 #X text 149 42 load file *.txt;
 #X text 83 171 files are saved with the extension *.txt;
 #X text 175 75 if file exist - nothing todo;
-#X obj 28 402 tgl 15 0 empty empty get_parameter 17 7 0 10 -262144
--1 -1 0 1;
+#X obj 28 402 tgl 15 0 empty empty get_parameter 17 7 0 10 #fcfcfc
+#000000 #000000 0 1;
 #X floatatom 46 578 5 0 0 1 id0(ins_id) - -;
 #X symbolatom 28 595 16 0 0 1 ins_name - -;
 #X obj 270 415 nbx 5 14 -1e+37 1e+37 0 0 empty empty automatisation
-0 -8 0 10 -262144 -1 -1 0 256;
+0 -8 0 10 #fcfcfc #000000 #000000 0 256;
 #X obj 167 245 n_ss;
 #X obj 167 263 n_ss_array;
 #X obj 167 281 n_ss_par;
 #X obj 167 299 n_ss_snap;
-#X obj 64 113 bng 15 250 50 0 empty empty save_as 17 7 0 10 -260097
--1 -1;
-#X obj 130 113 bng 15 250 50 0 empty empty save 17 7 0 10 -260097 -1
--1;
-#X obj 179 113 bng 15 250 50 0 empty empty load 17 7 0 10 -257985 -1
--1;
+#X obj 64 113 bng 15 250 50 0 empty empty save_as 17 7 0 10 #fc8000
+#000000 #000000;
+#X obj 130 113 bng 15 250 50 0 empty empty save 17 7 0 10 #fc8000 #000000
+#000000;
+#X obj 179 113 bng 15 250 50 0 empty empty load 17 7 0 10 #f8fc00 #000000
+#000000;
 #X msg 49 75 load_file ./not.txt;
 #X msg 27 35 load_file ./1.txt;
 #X msg 37 53 load_file ./2.txt;
 #X msg 64 133 save_as;
 #X msg 130 133 save;
 #X msg 179 133 load;
-#X msg 27 191 empty;
+#X msg 27 191 2.txt;
 #X text 178 14 n_ss - save state objects and automatisation parameters.
 ;
 #X obj 28 422 s ss_get_par;
@@ -155,7 +155,7 @@
 #X restore 410 407 pd save/load;
 #X text 731 59 for example:;
 #X obj 285 436 bng 15 250 50 0 empty empty automate_this 17 7 0 10
--262144 -1 -1;
+#fcfcfc #000000 #000000;
 #X obj 285 456 list;
 #X obj 270 492 s;
 #X msg 285 474 symbol \$2_r_\$4;
