@@ -153,6 +153,13 @@ def create_ss(lpd, ins_name):
                 obj.append(s)
                 print('find: %s %s' % (s[4], s[13]))
 
+            elif s[4] == 'n_knob':
+                s[13] = '\\\\\$0_s_%d' % (obj_n)
+                s[14] = '\\\\\$0_r_%d' % (obj_n)
+                obj_n += 1
+                obj.append(s)
+                print('find: %s %s' % (s[4], s[15]))
+
     # add array for par
     arr_for_par_s = '#X obj 10 114 table \$0_ss_a_0;'
     arr_for_par = arr_for_par_s.split()
@@ -196,7 +203,7 @@ def create_ss(lpd, ins_name):
         # 2) $0
         # 3) $1
         # 4) number
-        # 5) type obj (tgl, hradio, vradio, nbx, vsl, hsl)
+        # 5) type obj (tgl, hradio, vradio, nbx, vsl, hsl, n_knob)
         # 6) name
         # 7) lower
         # 8) upper
@@ -261,6 +268,17 @@ def create_ss(lpd, ins_name):
                 i[13],
                 i[7],
                 i[8])
+            st += 1; insert_string(s, res, st)
+            obj_n += 1
+             
+        elif i[4] == 'n_knob':
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d n_knob %s %s %s;' % (
+                ox, oy,
+                ins_name,
+                obj_n,
+                i[15],
+                i[8],
+                i[9])
             st += 1; insert_string(s, res, st)
             obj_n += 1
              
@@ -330,32 +348,3 @@ except:
     exit()
 
 parse_pd(filename_in, filename_out)
-
-# ---------------------------------------------------------------------------- #
-# pd lines
-
-#N canvas ox oy w h name|(subpath) view;
-#X restore r_ox r_oy pd name|(subpath);
-#X coords 0 -1 1 1 350 60 1 100 150;
-
-#X obj ox oy obj_name [...];
-
-#X obj ox oy nbx W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? logW;
-#X obj ox oy vsl W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
-#X obj ox oy hsl W H lower upper ? ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
-#X obj ox oy tgl size ? snd rcv lab ldx ldy fn fs bc fc lc ? ?;
-#X obj ox oy hradio size ? ? nc snd rcv lab ldx ldy fn fs bc fc lc ?;
-#X obj ox oy vradio size ? ? nc snd rcv lab ldx ldy fn fs bc fc lc ?;
-
-#X text ox oy text text text, f w;
-#X msg ox oy text;
-#X floatatom ox oy w lower upper side snd rcv lab;
-#X symbolatom ox oy w lower upper side snd rcv lab;
-
-#N canvas ox oy w h (subpath) view;
-#X array name size float f;
-#A [...];
-#X coords f f f f f f f f;
-#X restore r_ox r_oy graph;
-
-#X connect obj_out out obj_in in;

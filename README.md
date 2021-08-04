@@ -14,6 +14,7 @@ Another one idea for saving abstraction state in Pure Data.
    +   'vradio' or 'verical radio'
    +   'hradio' or 'horizontal radio'
    +   'array' with name completion 'ss'
+   +   'n_knob'
 
 3. Add object 'inlet' and 's $0_ss_snap'. connect them.
 
