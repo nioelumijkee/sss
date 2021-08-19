@@ -1,4 +1,4 @@
-#N canvas 677 127 592 478 10;
+#N canvas 339 131 808 464 10;
 #X obj 134 138 inlet snap;
 #X text 137 28 1) name ins;
 #X text 137 89 4) number parameters in snap;
