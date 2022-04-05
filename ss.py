@@ -19,13 +19,13 @@ def file2pdlist(filename):
     for i in l:
         i = i.strip()
         s = s + ' ' + i
-        if i[-1] == ';':
+        if s[-1] == ';':
+            s = s[:-1]
             s = s.strip().split()
             res.append(s)
             s = ''
     fd.close()
-    if debug:
-        print("file %s to list : done." % (filename))
+    print("file2pdlist : done.")
     return(res)
 
 
@@ -43,29 +43,16 @@ def pdlist2file(filename, l):
         for j in i:
             s = s + ' ' + j
         s = s.strip()
+        s = s + ";"
         fd.write(s)
         fd.write('\n')
     fd.close()
-    if debug:
-        print("list to file %s : done." % (filename))
-
-# ---------------------------------------------------------------------------- #
-def print_list(l):
-    "print list"
-    s = ''
-    for i in l:
-        s = s + ' ' + i
-        if len(s) > 80:
-            s = s[:74]
-            s = s + ' >'
-            break
-    return(s.strip())
+    print("pdlist2file : done.")
 
 # ---------------------------------------------------------------------------- #
 def insert_string(s, l , pos):
     "insert string to list"
     l.insert(pos, s.split())
-
 
 # ---------------------------------------------------------------------------- #
 def create_ss(lpd, ins_name):
@@ -84,11 +71,6 @@ def create_ss(lpd, ins_name):
         
         if find == 0:
             res.append(s)
-            if debug:
-                print("%-4d +" % (num), print_list(s))
-        else:
-            if debug:
-                print("%-4d -" % (num), print_list(s))
 
         if find == 1 and s[0] == '#X' and s[1] == 'restore' and s[5] == 'ss;':
             find = 0
@@ -178,10 +160,9 @@ def create_ss(lpd, ins_name):
 
     #####################################################################
     # insert pd ss
-    insert_string('#N canvas 20 20 900 500 ss 0;', res , st)
-    st += 1; insert_string('#X text 10 50 automatic created by toss.py;', res, st)
-    st += 1; insert_string('#X obj 10 70 r \$0_ss_snap;', res, st)
-    st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d \$2;' % (ins_name, obj_n), res, st)
+    insert_string('#N canvas 20 20 900 500 ss 0', res , st)
+    st += 1; insert_string('#X text 10 50 this canvas automatic created by ss.py', res, st)
+    st += 1; insert_string('#X obj 10 92 n_ss_snap %s \$0 \$1 %d \$2' % (ins_name, obj_n), res, st)
     st += 1; insert_string(arr_for_par_s, res, st)
 
     # insert odj's and array's
@@ -209,7 +190,7 @@ def create_ss(lpd, ins_name):
         # 8) upper
 
         if i[4] == 'tgl':
-            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d tgl %s 0 1;' % (
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d tgl %s 0 1' % (
                 ox, oy,
                 ins_name,
                 obj_n,
@@ -218,7 +199,7 @@ def create_ss(lpd, ins_name):
             obj_n += 1
              
         elif i[4] == 'hradio':
-            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d hrd %s 0 %s;' % (
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d hrd %s 0 %s' % (
                 ox, oy,
                 ins_name,
                 obj_n,
@@ -228,7 +209,7 @@ def create_ss(lpd, ins_name):
             obj_n += 1
              
         elif i[4] == 'vradio':
-            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d vrd %s 0 %s;' % (
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d vrd %s 0 %s' % (
                 ox, oy,
                 ins_name,
                 obj_n,
@@ -239,7 +220,7 @@ def create_ss(lpd, ins_name):
              
 
         elif i[4] == 'nbx':
-            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d nbx %s %s %s;' % (
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d nbx %s %s %s' % (
                 ox, oy,
                 ins_name,
                 obj_n,
@@ -250,7 +231,7 @@ def create_ss(lpd, ins_name):
             obj_n += 1
              
         elif i[4] == 'hsl':
-            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d hsl %s %s %s;' % (
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d hsl %s %s %s' % (
                 ox, oy,
                 ins_name,
                 obj_n,
@@ -261,7 +242,7 @@ def create_ss(lpd, ins_name):
             obj_n += 1
              
         elif i[4] == 'vsl':
-            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d vsl %s %s %s;' % (
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d vsl %s %s %s' % (
                 ox, oy,
                 ins_name,
                 obj_n,
@@ -272,7 +253,7 @@ def create_ss(lpd, ins_name):
             obj_n += 1
              
         elif i[4] == 'n_knob':
-            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d n_knob %s %s %s;' % (
+            s = '#X obj %d %d n_ss_par %s \$0 \$1 %d n_knob %s %s %s' % (
                 ox, oy,
                 ins_name,
                 obj_n,
@@ -289,7 +270,7 @@ def create_ss(lpd, ins_name):
         # 5) name
 
         elif i[4] == 'table':
-            s = '#X obj %d %d n_ss_array %s \$0 \$1 %d %s;' % (
+            s = '#X obj %d %d n_ss_array %s \$0 \$1 %d %s' % (
                 ox, oy,
                 ins_name,
                 arr_n,
@@ -299,7 +280,7 @@ def create_ss(lpd, ins_name):
             arr_n += 1
              
         elif i[1] == 'array':
-            s = '#X obj %d %d n_ss_array %s \$0 \$1 %d %s;' % (
+            s = '#X obj %d %d n_ss_array %s \$0 \$1 %d %s' % (
                 ox, oy,
                 ins_name,
                 arr_n,
@@ -309,8 +290,8 @@ def create_ss(lpd, ins_name):
             arr_n += 1
              
     # end canvas and connect
-    st += 1; insert_string('#X connect 1 0 2 0;', res, st)
-    st += 1; insert_string('#X restore 20 50 pd ss;', res, st)
+    st += 1; insert_string('#X connect 1 0 2 0', res, st)
+    st += 1; insert_string('#X restore 20 50 pd ss', res, st)
 
     return(res)
 
@@ -320,31 +301,36 @@ def parse_pd(filename_in, filename_out):
     "main parse function"
 
     # name
-    ins_name = os.path.splitext(filename_in)[0]
-    ins_name = ins_name.split('/')
-    ins_name = ins_name[-1]
+    ins_name = os.path.splitext(filename_in)[0].split('/')[-1]
+    print("name : ", ins_name)
 
     # file to list
-    pd = []
-    pd = file2pdlist(filename_in)
+    pdl = file2pdlist(filename_in)
 
     # ss
-    pd = create_ss(pd, ins_name)
+    pd = create_ss(pdl, ins_name)
 
     # write
     pdlist2file(filename_out, pd)
 
 
 # ---------------------------------------------------------------------------- #
+def print_help_and_exit():
+    print("usage:  <file_in.pd>  <file_out.pd>")
+    exit()
+
+# ---------------------------------------------------------------------------- #
 global debug; debug = 0
 
+
+# arguments
 filename_in  = None
 filename_out = None
 try:
     filename_in  = sys.argv[1]
     filename_out = sys.argv[2]
 except:
-    print('usage: <file_in.pd> <file_out.pd>')
-    exit()
+    print_help_and_exit()
 
+print(filename_in, "->", filename_out)
 parse_pd(filename_in, filename_out)
