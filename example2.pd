@@ -1,17 +1,17 @@
 #N canvas 362 160 693 302 10;
-#X obj 116 153 nbx 5 14 0 100 0 0 \$0_s_0 \$0_r_0 par_0 0 -8 0 10 -262144
--1 -1 0 256;
-#X obj 182 153 nbx 5 14 0 100 0 0 \$0_s_1 \$0_r_1 par_1 0 -8 0 10 -262144
--1 -1 0 256;
-#X obj 254 153 nbx 5 14 0 100 0 0 \$0_s_2 \$0_r_2 par_2 0 -8 0 10 -262144
--1 -1 0 256;
-#X obj 327 154 nbx 5 14 0 100 0 0 \$0_s_3 \$0_r_3 par_3 0 -8 0 10 -262144
--1 -1 0 256;
+#X obj 116 153 nbx 5 14 0 100 0 0 \$0_s_0 \$0_r_0 par_0 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
+#X obj 182 153 nbx 5 14 0 100 0 0 \$0_s_1 \$0_r_1 par_1 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
+#X obj 254 153 nbx 5 14 0 100 0 0 \$0_s_2 \$0_r_2 par_2 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
+#X obj 327 154 nbx 5 14 0 100 0 0 \$0_s_3 \$0_r_3 par_3 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
 #X obj 20 2 inlet snap;
-#X obj 185 112 tgl 15 0 \$0_s_4 \$0_r_4 par_4 17 7 0 10 -262144 -1
--1 0 1;
+#X obj 185 112 tgl 15 0 \$0_s_4 \$0_r_4 par_4 17 7 0 10 #fcfcfc #000000
+#000000 0 1;
 #X obj 270 113 hsl 60 12 0 127 0 0 \$0_s_5 \$0_r_5 par_5 66 6 0 10
--262144 -1 -1 0 1;
+#fcfcfc #000000 #000000 0 1;
 #X obj 20 20 s \$0_ss_snap;
 #N canvas 0 50 450 250 (subpatch) 0;
 #X array \$0_a_ss 100 float 2;
@@ -19,14 +19,14 @@
 #X restore 496 118 graph;
 #X text 513 182 save state;
 #X text 470 200 array name completion 'ss';
-#X obj 405 120 vradio 8 1 0 4 \$0_s_6 \$0_r_6 empty 0 -8 0 10 -262144
--1 -1 0;
-#X obj 425 120 vradio 8 1 0 4 \$0_s_7 \$0_r_7 empty 0 -8 0 10 -262144
--1 -1 0;
-#X obj 445 120 vradio 8 1 0 4 \$0_s_8 \$0_r_8 empty 0 -8 0 10 -262144
--1 -1 0;
-#X obj 465 120 vradio 8 1 0 4 \$0_s_9 \$0_r_9 empty 0 -8 0 10 -262144
--1 -1 0;
+#X obj 405 120 vradio 8 1 0 4 \$0_s_6 \$0_r_6 empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 425 120 vradio 8 1 0 4 \$0_s_7 \$0_r_7 empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 445 120 vradio 8 1 0 4 \$0_s_8 \$0_r_8 empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 465 120 vradio 8 1 0 4 \$0_s_9 \$0_r_9 empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
 #N canvas 60 45 900 500 ss 0;
 #X text 10 50 automatic created by toss.py;
 #X obj 10 70 r \$0_ss_snap;
@@ -44,7 +44,6 @@
 #X obj 10 392 n_ss_par example2 \$0 \$1 9 vrd empty 0 4;
 #X obj 10 420 n_ss_array example2 \$0 \$1 0 \$0_ss_a_0;
 #X obj 10 448 n_ss_array example2 \$0 \$1 1 \$0_a_ss;
-#X connect 1 0 2 0;
 #X restore 24 54 pd ss;
 #X connect 4 0 7 0;
 #X coords 0 -1 1 1 500 72 1 100 100;

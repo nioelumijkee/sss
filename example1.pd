@@ -1,38 +1,81 @@
-#N canvas 362 160 693 302 10;
-#X obj 116 153 nbx 5 14 0 100 0 0 \$0_s_0 \$0_r_0 par_0 0 -8 0 10 -262144 -1 -1 0 256;
-#X obj 182 153 nbx 5 14 0 100 0 0 \$0_s_1 \$0_r_1 par_1 0 -8 0 10 -262144 -1 -1 0 256;
-#X obj 254 153 nbx 5 14 0 100 0 0 \$0_s_2 \$0_r_2 par_2 0 -8 0 10 -262144 -1 -1 0 256;
-#X obj 327 154 nbx 5 14 0 100 0 0 \$0_s_3 \$0_r_3 par_3 0 -8 0 10 -262144 -1 -1 0 256;
-#X obj 20 2 inlet snap;
-#X obj 185 112 tgl 15 0 \$0_s_4 \$0_r_4 par_4 17 7 0 10 -262144 -1 -1 0 1;
-#X obj 270 113 hsl 60 12 0 127 0 0 \$0_s_5 \$0_r_5 par_5 66 6 0 10 -262144 -1 -1 0 1;
-#X obj 20 20 s \$0_ss_snap;
+#N canvas 362 160 704 517 10;
+#X obj 116 153 nbx 5 14 0 100 0 0 \$0_s_0 \$0_r_0 par_0 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
+#X obj 182 153 nbx 5 14 0 100 0 1 \$0_s_1 \$0_r_1 par_1 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
+#X obj 254 153 nbx 5 14 0 100 0 0 \$0_s_2 \$0_r_2 par_2 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
+#X obj 327 154 nbx 5 14 0 100 0 1 \$0_s_3 \$0_r_3 par_3 0 -8 0 10 #fcfcfc
+#000000 #000000 0 256;
+#X obj 185 112 tgl 15 0 \$0_s_4 \$0_r_4 par_4 17 7 0 10 #fcfcfc #000000
+#000000 0 1;
+#X obj 243 113 hsl 60 12 0 127 0 0 \$0_s_5 \$0_r_5 par_5 66 6 0 10
+#fcfcfc #000000 #000000 0 1;
 #N canvas 0 50 450 250 (subpatch) 0;
-#X array \$0_array 100 float 3;
-#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+#X array \$0-array1 100 float 2;
 #X coords 0 1 100 -1 100 50 1 0 0;
-#X restore 493 118 graph;
-#X text 501 182 no save state;
+#X restore 399 119 graph;
+#X obj 116 172 f;
+#X obj 182 172 f;
+#X obj 254 172 f;
+#X obj 327 173 f;
+#X obj 72 127 f;
+#X obj 315 304 i;
+#X obj 357 114 vsl 20 24 -24 24 0 0 empty empty empty 0 -9 0 10 #fcfcfc
+#000000 #000000 0 1;
+#X obj 511 118 vradio 12 1 0 4 empty empty empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 525 118 vradio 12 1 0 4 empty empty empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 539 118 vradio 12 1 0 4 empty empty empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 559 118 hradio 12 1 0 3 empty empty empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 559 136 hradio 12 1 0 3 empty empty empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
+#X obj 559 154 hradio 12 1 0 3 empty empty empty 0 -8 0 10 #fcfcfc
+#000000 #000000 0;
 #N canvas 0 50 450 250 (subpatch) 0;
-#X array \$0_array_ss 100 float 2;
+#X array \$0-array2 100 float 3;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0.88 0 0 0 0 0 0 0 0 0 0.76 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0;
 #X coords 0 1 100 -1 100 50 1 0 0;
-#X restore 390 118 graph;
-#X text 407 182 save state;
-#X text 400 198 array name completion 'ss';
-#N canvas 20 20 900 500 ss 0;
-#X text 10 50 automatic created by toss.py;
-#X obj 10 70 r \$0_ss_snap;
-#X obj 10 92 n_ss_snap example1 \$0 \$1 6 \$2;
-#X obj 10 114 table \$0_ss_a_0;
-#X obj 10 140 n_ss_par example1 \$0 \$1 0 nbx par_0 0 100;
-#X obj 10 168 n_ss_par example1 \$0 \$1 1 nbx par_1 0 100;
-#X obj 10 196 n_ss_par example1 \$0 \$1 2 nbx par_2 0 100;
-#X obj 10 224 n_ss_par example1 \$0 \$1 3 nbx par_3 0 100;
-#X obj 10 252 n_ss_par example1 \$0 \$1 4 tgl par_4 0 1;
-#X obj 10 280 n_ss_par example1 \$0 \$1 5 hsl par_5 0 127;
-#X obj 10 308 n_ss_array example1 \$0 \$1 0 \$0_ss_a_0;;
-#X obj 10 336 n_ss_array example1 \$0 \$1 1 \$0_array_ss;
-#X connect 1 0 2 0;
-#X restore 20 50 pd ss;
-#X connect 4 0 7 0;
+#X restore 412 326 graph;
+#X text 355 51 array without flag 'save content';
+#X text 371 393 array with flag 'save content';
+#N canvas 0 50 450 250 (subpatch) 0;
+#X array array1 100 float 1;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0;
+#X coords 0 1 99 -1 200 140 1 0 0;
+#X restore 24 328 graph;
+#N canvas 0 50 450 250 (subpatch) 0;
+#X array \$0-array4 100 float 4;
+#X coords 0 1 99 -1 100 50 1 0 0;
+#X restore 517 235 graph;
+#X obj 344 220 tgl 15 1 empty empty another 17 7 0 10 #fcfcfc #000000
+#000000 0 12;
+#X connect 0 0 7 0;
+#X connect 1 0 8 0;
+#X connect 2 0 9 0;
+#X connect 3 0 10 0;
+#X connect 4 0 11 0;
+#X connect 5 0 12 0;
+#X connect 7 0 12 0;
+#X connect 8 0 12 0;
+#X connect 9 0 12 0;
+#X connect 10 0 12 0;
+#X connect 11 0 12 0;
+#X connect 13 0 12 0;
+#X connect 14 0 12 0;
+#X connect 15 0 12 0;
+#X connect 16 0 12 0;
+#X connect 17 0 12 0;
+#X connect 18 0 12 0;
+#X connect 19 0 12 0;
+#X connect 25 0 12 0;
 #X coords 0 -1 1 1 500 72 1 100 100;
