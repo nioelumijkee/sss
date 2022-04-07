@@ -2,14 +2,19 @@
 # -*- coding: utf-8 -*-
 
 # ---------------------------------------------------------------------------- #
-# import sys
 import os
 import argparse
 
+
+# ---------------------------------------------------------------------------- #
+# global
 # ---------------------------------------------------------------------------- #
 verbose = 0
 quitet = 0
 
+
+# ---------------------------------------------------------------------------- #
+# vanila
 # ---------------------------------------------------------------------------- #
 pdvanila_general = [
     'bang', 'b',
@@ -237,15 +242,43 @@ def find_pd_files(files, h):
 
 
 # ---------------------------------------------------------------------------- #
-def find_all_files_in_dir(dir):
-    if dir[-1] == '/':
-        dir = dir[:-1]
-    a = os.listdir(dir)
+def find_all_files_in_dir(path):
+    d = []
     b = []
-    for i in a:
-        b.append(dir + '/' + i)
+    try:
+        d = os.listdir(path)
+    except:
+        print("error: find_all_files_in_dir: open %s" % (path))
+        return(b)
+    for i in d:
+        b.append(path + '/' + i)
     return(b)
 
+# ---------------------------------------------------------------------------- #
+def find_all_files_in_dir_rec(path, b):
+    d = []
+    try:
+        d = os.listdir(path)
+    except:
+        print("error: find_all_files_in_dir_rec: open %s" % (path))
+        return
+    for i in d:
+        s = path + '/' + i
+        # directory ?
+        if os.path.isdir(s):
+            if not os.path.islink(s):
+                if os.access(s, os.R_OK):
+                    find_all_files_in_dir_rec(s, b)
+        # file
+        else:
+            b.append(s)
+    return
+
+# ---------------------------------------------------------------------------- #
+def path_norm(path):
+    if path[-1] == '/':
+        path = path[:-1]
+    return(path)
 
 # ---------------------------------------------------------------------------- #
 # print
@@ -618,7 +651,12 @@ def pdss_dir(args):
         print('usage: -d /path/to/dir/with/pd/files')
         exit()
 
-    files_in = find_all_files_in_dir(args.d)
+    path = path_norm(args.d)
+    files_in = []
+    if args.r:
+        find_all_files_in_dir_rec(path, files_in)
+    else:
+        files_in = find_all_files_in_dir(path)
     files_in = find_pd_files(files_in, args.H)
     files_out = files_in
 
@@ -641,6 +679,7 @@ if __name__ == '__main__':
     parser_pdss_dir = subparsers.add_parser('dir', help='parse directory')
     parser_pdss_dir.add_argument('-d', default='', help='input directory')
     parser_pdss_dir.add_argument('-v', action='store_true', help='verbose')
+    parser_pdss_dir.add_argument('-r', action='store_true', help='recursive')
     parser_pdss_dir.add_argument('-H', action='store_true', help='with *help* files')
     parser_pdss_dir.add_argument('-q', action='store_true', help='quitet')
     parser_pdss_dir.set_defaults(func=pdss_dir)
