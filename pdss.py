@@ -4,13 +4,7 @@
 # ---------------------------------------------------------------------------- #
 import os
 import argparse
-
-
-# ---------------------------------------------------------------------------- #
-# global
-# ---------------------------------------------------------------------------- #
-verbose = 0
-quitet = 0
+import re
 
 
 # ---------------------------------------------------------------------------- #
@@ -590,13 +584,12 @@ def pdss_one_file(filename_in, filename_out):
 
 
 # ---------------------------------------------------------------------------- #
-def pdss_treat_files(files_in, files_out):
-    if verbose:
-        split()
-        print('all:')
-        for i in range(len(files_in)):
-            s = files_in[i] + '  ->  ' + files_out[i]
-            print(s)
+def pdss_treat_files(files_in, files_out, quitet):
+    split()
+    print('all:')
+    for i in range(len(files_in)):
+        s = files_in[i] + '  ->  ' + files_out[i]
+        print(s)
     for i in range(len(files_in)):
         split()
         if quitet == 0:
@@ -615,74 +608,70 @@ def pdss_treat_files(files_in, files_out):
 # ---------------------------------------------------------------------------- #
 # input function
 # ---------------------------------------------------------------------------- #
-def pdss_file(args):
-    global verbose
-    global quitet
-
-    if args.v:
-        verbose = 1
-
-    if args.q:
-        quitet = 1
-
-    if args.i == '' or args.o == '':
-        print('usage: -i input_file.pd -o output_file.pd')
+def pdss_input(args):
+    msg_err_fd = """usage: 
+    -f input_file.pd -o output_file.pd
+    or
+    -d /path/to/dir/with/pd/files"""
+    f = 1
+    # -f -o
+    if args.f != '':
+        if args.o == '':
+            print(msg_err_fd)
+            exit()
+        else:
+            f = 1
+    elif args.o != '':
+        print(msg_err_fd)
         exit()
+    elif args.d == '':
+        print(msg_err_fd)
+        exit()
+    else:
+        f = 0
 
-    files_in = [args.i]
-    files_out = [args.o]
-    files_in = find_pd_files(files_in, args.H)
+    # one file
+    if f:
+        files_in = [args.f]
+        files_out = [args.o]
+        files_in = find_pd_files(files_in, args.H)
+    # dir
+    else:
+        path = path_norm(args.d)
+        files_in = []
+        if args.r:
+            find_all_files_in_dir_rec(path, files_in)
+        else:
+            files_in = find_all_files_in_dir(path)
+        files_in = find_pd_files(files_in, args.H)
+        files_out = files_in
 
-    pdss_treat_files(files_in, files_out)
+    pdss_treat_files(files_in, files_out, args.q)
 
 
 # ---------------------------------------------------------------------------- #
-def pdss_dir(args):
-    global verbose
-    global quitet
-
-    if args.v:
-        verbose = 1
-
-    if args.q:
-        quitet = 1
-
-    if args.d == '':
-        print('usage: -d /path/to/dir/with/pd/files')
-        exit()
-
-    path = path_norm(args.d)
-    files_in = []
-    if args.r:
-        find_all_files_in_dir_rec(path, files_in)
-    else:
-        files_in = find_all_files_in_dir(path)
-    files_in = find_pd_files(files_in, args.H)
-    files_out = files_in
-
-    pdss_treat_files(files_in, files_out)
+def stat(args):
+    print(args)
 
 
 # ---------------------------------------------------------------------------- #
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='save state parser.')
+    parser = argparse.ArgumentParser(description='pure data save state script.')
     subparsers = parser.add_subparsers(title='subcommands')
 
-    parser_pdss_file = subparsers.add_parser('file', help='parse one file')
-    parser_pdss_file.add_argument('-i', default='', help='input file')
-    parser_pdss_file.add_argument('-o', default='', help='output file')
-    parser_pdss_file.add_argument('-v', action='store_true', help='verbose')
-    parser_pdss_file.add_argument('-H', action='store_true', help='with *help* files')
-    parser_pdss_file.add_argument('-q', action='store_true', help='quitet')
-    parser_pdss_file.set_defaults(func=pdss_file)
+    parser_pdss = subparsers.add_parser('file', help='pdss one file')
+    parser_pdss.add_argument('-f', default='', help='input file')
+    parser_pdss.add_argument('-o', default='', help='output file')
+    parser_pdss.add_argument('-d', default='', help='directory')
+    parser_pdss.add_argument('-r', action='store_true', help='recursive')
+    parser_pdss.add_argument('-H', action='store_true', help='with *help* files')
+    parser_pdss.add_argument('-q', action='store_true', help='quitet')
+    parser_pdss.set_defaults(func=pdss_input)
 
-    parser_pdss_dir = subparsers.add_parser('dir', help='parse directory')
-    parser_pdss_dir.add_argument('-d', default='', help='input directory')
-    parser_pdss_dir.add_argument('-v', action='store_true', help='verbose')
-    parser_pdss_dir.add_argument('-r', action='store_true', help='recursive')
-    parser_pdss_dir.add_argument('-H', action='store_true', help='with *help* files')
-    parser_pdss_dir.add_argument('-q', action='store_true', help='quitet')
-    parser_pdss_dir.set_defaults(func=pdss_dir)
+    parser_stat = subparsers.add_parser('stat', help='statistics')
+    parser_stat.add_argument('-f', default='', help='file')
+    parser_stat.add_argument('-d', default='', help='directory')
+    parser_stat.set_defaults(func=stat)
 
     args = parser.parse_args()
     if not vars(args):
