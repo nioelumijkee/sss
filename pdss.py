@@ -815,7 +815,7 @@ def stat(args):
 # ---------------------------------------------------------------------------- #
 def objs(args):
     msg_err = """usage: 
-    -d /path/to/dir/with/pd/files"""
+    -d /path/to/dir/with/pd/libs"""
     if args.d == '':
         print(msg_err)
         exit()
@@ -849,7 +849,6 @@ if __name__ == '__main__':
 
     parser_objs = subparsers.add_parser('objs', help='find all objs')
     parser_objs.add_argument('-d', default='', help='directory')
-    parser_objs.add_argument('-r', action='store_true', help='recursive')
     parser_objs.set_defaults(func=objs)
 
     args = parser.parse_args()
