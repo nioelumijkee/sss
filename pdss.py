@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+__version__ = '0.3'
+
 # ---------------------------------------------------------------------------- #
 import os
 import argparse
 import re
-
 
 # ---------------------------------------------------------------------------- #
 # vanila
@@ -689,10 +690,52 @@ def stat_treat_files(files_in, c):
 
 
 # ---------------------------------------------------------------------------- #
+# objs
+# ---------------------------------------------------------------------------- #
+def objs_treat_files(path):
+    split()
+
+    all = {}
+    dirs = os.listdir(path)
+
+    regex_pd = re.compile(".pd$")
+    regex_help_start = re.compile("^help-")
+    regex_help_end = re.compile("-help.pd$")
+
+    for d in dirs:
+        all[d] = []
+
+        buf = os.listdir("%s/%s" % (path,d))
+        for f in buf:
+            if os.path.isfile("%s/%s/%s" % (path,d,f)):
+                r = regex_pd.search(f)
+                if r:
+                    r = regex_help_start.search(f)
+                    if r:
+                        str = f[5:-3]
+                        all[d].append(str)
+
+                    r = regex_help_end.search(f)
+                    if r:
+                        str = f[:-8]
+                        all[d].append(str)
+
+    # print
+    ks = list(all.keys())
+    ks.sort()
+
+    print(path)
+    for key in ks:
+        split()
+        print(path + '/' + key)
+        print(all[key])
+
+
+# ---------------------------------------------------------------------------- #
 # input function
 # ---------------------------------------------------------------------------- #
 def pdss_input(args):
-    msg_err_fd = """usage: 
+    msg_err = """usage: 
     -f input_file.pd -o output_file.pd
     or
     -d /path/to/dir/with/pd/files"""
@@ -700,15 +743,15 @@ def pdss_input(args):
     # -f -o
     if args.f != '':
         if args.o == '':
-            print(msg_err_fd)
+            print(msg_err)
             exit()
         else:
             f = 1
     elif args.o != '':
-        print(msg_err_fd)
+        print(msg_err)
         exit()
     elif args.d == '':
-        print(msg_err_fd)
+        print(msg_err)
         exit()
     else:
         f = 0
@@ -734,7 +777,7 @@ def pdss_input(args):
 
 # ---------------------------------------------------------------------------- #
 def stat(args):
-    msg_err_fd = """usage: 
+    msg_err = """usage: 
     -f input_file.pd
     or
     -d /path/to/dir/with/pd/files"""
@@ -742,12 +785,12 @@ def stat(args):
     # -f
     if args.f != '':
         if args.d != '':
-            print(msg_err_fd)
+            print(msg_err)
             exit()
         else:
             f = 1
     elif args.d == '':
-        print(msg_err_fd)
+        print(msg_err)
         exit()
     else:
         f = 0
@@ -770,8 +813,21 @@ def stat(args):
 
 
 # ---------------------------------------------------------------------------- #
+def objs(args):
+    msg_err = """usage: 
+    -d /path/to/dir/with/pd/files"""
+    if args.d == '':
+        print(msg_err)
+        exit()
+
+    path = path_norm(args.d)
+    objs_treat_files(path)
+
+
+# ---------------------------------------------------------------------------- #
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='pure data save state script.')
+    parser = argparse.ArgumentParser(
+        description='pure data save state script. version = %s' % (__version__))
     subparsers = parser.add_subparsers(title='subcommands')
 
     parser_pdss = subparsers.add_parser('file', help='pdss one file')
@@ -790,6 +846,11 @@ if __name__ == '__main__':
     parser_stat.add_argument('-H', action='store_true', help='with *help* files')
     parser_stat.add_argument('-c', action='store_true', help='count objects')
     parser_stat.set_defaults(func=stat)
+
+    parser_objs = subparsers.add_parser('objs', help='find all objs')
+    parser_objs.add_argument('-d', default='', help='directory')
+    parser_objs.add_argument('-r', action='store_true', help='recursive')
+    parser_objs.set_defaults(func=objs)
 
     args = parser.parse_args()
     if not vars(args):
