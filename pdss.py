@@ -37,7 +37,7 @@ pdvanila_time = [
 
 pdvanila_math = [
     'expr',
-    '+', '-', '*', '/', 'pow' 
+    '+', '-', '*', '/', 'pow', 
     '==', '!=', '>', '<', '>=', '<=', 
     '&', '&&', '|', '||', '%', '<<', '>>', 
     'mtof', 'ftom', 'powtodb', 'rmstodb', 'dbtopow', 'dbtorms',
@@ -174,24 +174,24 @@ pdvanila_extra = [
     'output~'
 ]
 
-pdvanila = [
-    pdvanila_general,
-    pdvanila_gui,
-    pdvanila_time,
-    pdvanila_math,
-    pdvanila_io,
-    pdvanila_array,
-    pdvanila_misc,
-    pdvanila_audiomath,
-    pdvanila_general_audio_tools,
-    pdvanila_audio_gen_and_tables,
-    pdvanila_audio_filters,
-    pdvanila_audio_delay,
-    pdvanila_patch,
-    pdvanila_data,
-    pdvanila_acc_data,
-    pdvanila_extra,
-]
+pdvanila = (
+    pdvanila_general +
+    pdvanila_gui +
+    pdvanila_time +
+    pdvanila_math +
+    pdvanila_io +
+    pdvanila_array +
+    pdvanila_misc +
+    pdvanila_audiomath +
+    pdvanila_general_audio_tools +
+    pdvanila_audio_gen_and_tables +
+    pdvanila_audio_filters +
+    pdvanila_audio_delay +
+    pdvanila_patch +
+    pdvanila_data +
+    pdvanila_acc_data +
+    pdvanila_extra
+)
 
 
 # ---------------------------------------------------------------------------- #
@@ -212,17 +212,17 @@ def this_pd_file(file, h):
 
     # open and test first string
     try:
-        f = open(file)
+        f = open(file, errors='ignore')
         first = f.readline()
         f.close()
     except:
-        print('error: open file %s' % (file))
+        print('error: this_pd_file: open %s' % (file))
         return(False)
     first = first.split()
-    if first[0] == '#N' and first[1] == 'canvas':
+    if len(first) > 1 and first[0] == '#N':
         return(True)
     else: 
-        print('error: not pd file %s' % (file))
+        print('error: this_pd_file: not pd file %s' % (file))
         return(False)
 
 
@@ -288,9 +288,9 @@ def pdfile2pdlist(filename):
     "convert pd file to list"
     f = None
     try:
-        f = open(filename)
+        f = open(filename, errors='ignore')
     except:
-        print("error: open file %s" % (filename))
+        print("error: pdfile2pdlist: open %s" % (filename))
         exit()
 
     l = f.readlines()
@@ -305,7 +305,7 @@ def pdfile2pdlist(filename):
             res.append(s)
             s = ''
     f.close()
-    print("pdfile2pdlist: done.")
+    # print("pdfile2pdlist: done.")
     return(res)
 
 
@@ -316,7 +316,7 @@ def pdlist2pdfile(filename, l):
     try:
         f = open(filename, 'w')
     except:
-        print("error open %s" % (filename))
+        print("error: pdlist2pdfile: open %s" % (filename))
         exit()
 
     for i in l:
@@ -606,6 +606,89 @@ def pdss_treat_files(files_in, files_out, quitet):
 
 
 # ---------------------------------------------------------------------------- #
+# stat
+# ---------------------------------------------------------------------------- #
+def stat_one_file(file_in, objs_vanila, objs_not_vanila):
+    f = None
+    try:
+        f = open(file_in)
+    except:
+        print("error: stat_one_file: open %s" % (file_in))
+        return
+
+    pdl = pdfile2pdlist(file_in)
+    for i in pdl:
+        if len(i) >= 5:
+            if i[0] == '#X' and i[1] == 'obj':
+                n = i[4].replace(',','')
+                if not n in pdvanila:
+                    if not n in objs_not_vanila:
+                        objs_not_vanila.append(n)
+                else:
+                    if not n in objs_vanila:
+                        objs_vanila.append(n)
+
+
+# ---------------------------------------------------------------------------- #
+def stat_one_file_count(file_in, objs_vanila, objs_not_vanila):
+    f = None
+    try:
+        f = open(file_in)
+    except:
+        print("error: stat_one_file: open %s" % (file_in))
+        return
+
+    pdl = pdfile2pdlist(file_in)
+    for i in pdl:
+        if len(i) >= 5:
+            if i[0] == '#X' and i[1] == 'obj':
+                n = i[4].replace(',','')
+                if not n in pdvanila:
+                    if not n in objs_not_vanila:
+                        objs_not_vanila[n] = 1
+                    else:
+                        objs_not_vanila[n] += 1
+                else:
+                    if not n in objs_vanila:
+                        objs_vanila[n] = 1
+                    else:
+                        objs_vanila[n] += 1
+
+
+# ---------------------------------------------------------------------------- #
+def stat_treat_files(files_in, c):
+    split()
+    print('all:')
+    for i in files_in:
+        print(i)
+    if c:
+        objs_vanila = {}
+        objs_not_vanila = {}
+        for i in files_in:
+            stat_one_file_count(i, objs_vanila, objs_not_vanila)
+        split()
+        print("vanila objects:")
+        for i in objs_vanila:
+            print(i, ' : ', objs_vanila[i])
+        split()
+        print("not vanila objects:")
+        for i in objs_not_vanila:
+            print(i, ' : ', objs_not_vanila[i])
+
+    else:
+        objs_vanila = []
+        objs_not_vanila = []
+        for i in files_in:
+            stat_one_file(i, objs_vanila, objs_not_vanila)
+        split()
+        print("vanila objects:")
+        print(objs_vanila)
+        split()
+        print("not vanila objects:")
+        print(objs_not_vanila)
+
+
+# ---------------------------------------------------------------------------- #
 # input function
 # ---------------------------------------------------------------------------- #
 def pdss_input(args):
@@ -651,7 +734,39 @@ def pdss_input(args):
 
 # ---------------------------------------------------------------------------- #
 def stat(args):
-    print(args)
+    msg_err_fd = """usage: 
+    -f input_file.pd
+    or
+    -d /path/to/dir/with/pd/files"""
+    f = 1
+    # -f
+    if args.f != '':
+        if args.d != '':
+            print(msg_err_fd)
+            exit()
+        else:
+            f = 1
+    elif args.d == '':
+        print(msg_err_fd)
+        exit()
+    else:
+        f = 0
+
+    # one file
+    if f:
+        files_in = [args.f]
+        files_in = find_pd_files(files_in, args.H)
+    # dir
+    else:
+        path = path_norm(args.d)
+        files_in = []
+        if args.r:
+            find_all_files_in_dir_rec(path, files_in)
+        else:
+            files_in = find_all_files_in_dir(path)
+        files_in = find_pd_files(files_in, args.H)
+
+    stat_treat_files(files_in, args.c)
 
 
 # ---------------------------------------------------------------------------- #
@@ -671,6 +786,9 @@ if __name__ == '__main__':
     parser_stat = subparsers.add_parser('stat', help='statistics')
     parser_stat.add_argument('-f', default='', help='file')
     parser_stat.add_argument('-d', default='', help='directory')
+    parser_stat.add_argument('-r', action='store_true', help='recursive')
+    parser_stat.add_argument('-H', action='store_true', help='with *help* files')
+    parser_stat.add_argument('-c', action='store_true', help='count objects')
     parser_stat.set_defaults(func=stat)
 
     args = parser.parse_args()
