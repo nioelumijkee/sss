@@ -1,25 +1,26 @@
-pdss - pure data save state
-===========================
+## pdss - pure data save state
+
+--------------------------------------------------------------------------------
 
 Еще одна идея сохранения состояния абстракций в ПД.
 
 
 1. Создать патч. Будем называть его Плагин. В нем могут содержаться любые вещи,
 и этот список обьектов будет сохранять состояние:
-   +   'tgl' or 'toggle'
-   +   'nbx' or 'numberbox'
-   +   'vsl' or 'vertical slider'
-   +   'hsl' or 'horizontal slider'
-   +   'vradio' or 'verical radio'
-   +   'hradio' or 'horizontal radio'
-   +   'array' with name completion 'ss'
-   +   'n_knob'
+   + 'tgl' or 'toggle'.
+   + 'nbx' or 'numberbox'.
+   + 'vsl' or 'vertical slider'.
+   + 'hsl' or 'horizontal slider'.
+   + 'vradio' or 'verical radio'.
+   + 'hradio' or 'horizontal radio'.
+   + 'array' with word 'pdss' in name.
+   + 'n_knob'.
 
 2. Сохраняем и закрываем патч.
 
 3. В коммандной строке ввести:
 
-		python3 ss.py -i plugin.pd -o plugin_ss.pd
+		python3 pdss.py -f plugin.pd -o plugin_ss.pd
 
 4. Создаем другой патч - Хост, в котором будем использовать патч Плагин.
 
@@ -32,43 +33,64 @@ pdss - pure data save state
 
 --------------------------------------------------------------------------------
 
-1. Create pd path('instrument').
+### a_pdss
 
-2. Add to path several objects. Save state work for this objects:
-   +   'tgl' or 'toggle'
-   +   'nbx' or 'numberbox'
-   +   'vsl' or 'vertical slider'
-   +   'hsl' or 'horizontal slider'
-   +   'vradio' or 'verical radio'
-   +   'hradio' or 'horizontal radio'
-   +   'array' with name completion 'ss'
-   +   'n_knob'
+arguments:
+	+ when 1 local saving to 'savestate' activated.
 
-3. Save and close path.
+inlet:
+	+ open <filename>
+	  + open file.
+	  + copy file to main buffer.
+	  + set filename.
+	  + from main buffer copy to all instruments.
+	+ save
+	  + from all instruments copy all arrays to main buffer.
+	  + save main buffer to object 'savestate'.
+	  + if filename is set, save main buffer to file.
+	+ save_as <filename>
+	  + from all instruments copy all arrays to main buffer.
+	  + save main buffer to object 'savestate'.
+	  + set filename.
+	  + save main buffer to file.
 
-4. Run: 
+outlet:
+	+ info
 
-        ./toss.py 'file_in.pd' 'file_out.pd'
-
-5. Create another path('master').
-
-6. Add your 'instrument' object this. arguments:
-    +   unique number(for every 'ss' object in path)
-    +   number of snapshots.
-
-7. Add object 'n_ss' to 'master' path.
+init when load:
+	+ copy from object savestate to main buffer
+	+ set filename 'empty'.
+	+ from main buffer copy to all instruments.
 
 
+### a_pdss-driver
 
-Messages for n_ss:
-    +   save - for saving state
-    +   save_as - for saving as
-    +   load - for load state
+No commands.
 
-For local saving (not file) n_ss must be first argument equal 1.
+### a_pdss-par
+
+No commands.
+
+### a_pdss-array
+
+No commands.
 
 --------------------------------------------------------------------------------
 
-License: GPL v3
-Author: Nio
-AuthorEmail: nio@dummy.dummy
+### structure saved files
+
+header main:
+	+ [0] size file
+	+ [1] amount arrays
+table arrays:
+	+ [0] id ins
+	+ [1] number array
+	+ [2] size array
+data:
+	+ data
+
+--------------------------------------------------------------------------------
+
+### pdss.py
+
+Python script for automatisation.

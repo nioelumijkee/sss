@@ -372,8 +372,9 @@ def find_all_arrays(lpd):
     for i in range(len(lpd)):
         l = lpd[i]
         if ar == 0 and l[0] == '#X' and l[1] == 'array':
-            ar = 1
-            n = i
+            if l[2].find('pdss') != -1:
+                ar = 1
+                n = i
         if ar == 1 and l[0] == '#A':
             n = -1
         if ar == 1 and l[0] == '#X' and l[1] == 'coords':
@@ -386,13 +387,15 @@ def find_all_arrays(lpd):
 # ---------------------------------------------------------------------------- #
 # pdss
 # ---------------------------------------------------------------------------- #
-def pdss_calc_coords(pos):
-    obj_ox = 20  # offset
-    obj_oy = 20
-    obj_ix = 300 # inc
-    obj_iy = 28
-    obj_r = 16 # row
+obj_ox = 20  # offset
+obj_oy = 20
+obj_ix = 350 # inc
+obj_iy = 24
+obj_r = 16 # row
+cnv_w = obj_ox + (obj_ix * 3) 
+cnv_h = obj_oy + (obj_iy * obj_r) + obj_oy
 
+def pdss_calc_coords(pos):
     x  = pos // obj_r # position
     y  = pos % obj_r
     ox = obj_ox + (obj_ix * x) # coords
@@ -403,7 +406,7 @@ def pdss_calc_coords(pos):
 # ---------------------------------------------------------------------------- #
 def pdss(lpd, ins_name):
     obj_cnv    = '__pdss__'
-    obj_driver = 'a_pdss_snap'
+    obj_driver = 'a_pdss_driver'
     obj_par    = 'a_pdss_par'
     obj_array  = 'a_pdss_array'
 
@@ -419,36 +422,32 @@ def pdss(lpd, ins_name):
         lpd = b
 
     # find gui objects and arrays
-    a_nbx     = find_all_object(lpd, 'nbx')
-    a_hsl     = find_all_object(lpd, 'hsl')
-    a_vsl     = find_all_object(lpd, 'vsl')
-    a_tgl     = find_all_object(lpd, 'tgl')
-    a_hradio  = find_all_object(lpd, 'hradio')
-    a_vradio  = find_all_object(lpd, 'vradio')
-    a_n_knob  = find_all_object(lpd, 'n_knob')
-    a_arrays  = find_all_arrays(lpd)
-
-    a = (
-        a_nbx +
-        a_hsl +
-        a_vsl +
-        a_tgl +
-        a_hradio +
-        a_vradio +
-        a_n_knob
+    all_nbx     = find_all_object(lpd, 'nbx')
+    all_hsl     = find_all_object(lpd, 'hsl')
+    all_vsl     = find_all_object(lpd, 'vsl')
+    all_tgl     = find_all_object(lpd, 'tgl')
+    all_hradio  = find_all_object(lpd, 'hradio')
+    all_vradio  = find_all_object(lpd, 'vradio')
+    all_n_knob  = find_all_object(lpd, 'n_knob')
+    all_obj = (
+        all_nbx +
+        all_hsl +
+        all_vsl +
+        all_tgl +
+        all_hradio +
+        all_vradio +
+        all_n_knob
     )
-    allobj = len(a)
-    allarr = len(a_arrays)
-    a += a_arrays
+    all_arrays  = find_all_arrays(lpd)
+
     obj = []
-    obj_n = 0
-    arr_n = 0
-    pos = 0
 
     # canvas
-    s = '#N canvas 20 20 600 500 %s 0' % (obj_cnv)
+    s = '#N canvas 20 20 %d %d %s 0' % (cnv_w, cnv_h, obj_cnv)
     s = s.split()
     obj.append(s)
+
+    pos = 0
 
     # comment
     ox, oy  = pdss_calc_coords(pos);    pos += 1
@@ -456,25 +455,24 @@ def pdss(lpd, ins_name):
     s = s.split()
     obj.append(s)
 
-    # a_snap
+    # driver
     ox, oy  = pdss_calc_coords(pos);    pos += 1
-    s = '#X obj %d %d %s %s \$0 \$1 %d \$2' % (ox, oy, obj_driver,ins_name, allobj)
+    s = '#X obj %d %d %s %s \$0 \$1 %d \$2' % (
+        ox, oy, obj_driver,ins_name, len(all_obj))
     s = s.split()
     obj.append(s)
-    arr_n += 1
 
-    # add array for par
+    # array for par
     ox, oy  = pdss_calc_coords(pos);    pos += 1
-    s = '#X obj %d %d table \$0_ss_a_%d;' % (ox, oy, arr_n)
+    s = '#X obj %d %d table \$0-pdss-array-%d' % (ox, oy, 0)
     s = s.split()
     obj.append(s)
     
-    for i in a:
-
+    pos = obj_r
+    obj_n = 0
+    for i in all_obj:
         l = lpd[i]
-        
         ox, oy  = pdss_calc_coords(pos);   pos += 1
-
         s = ''
         
         # 1) ins name
@@ -487,51 +485,51 @@ def pdss(lpd, ins_name):
         # 8) upper
 
         if l[4] == 'nbx':
-            l[10] = '0'                   # init
-            l[11] = '\$0_s_%d' % (obj_n)  # send
-            l[12] = '\$0_r_%d' % (obj_n)  # receive
+            l[10] = '0'                   
+            l[11] = '\$0-pdss-s-%d' % (obj_n)  
+            l[12] = '\$0-pdss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 %d nbx %s %s %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
 
         elif l[4] == 'hsl':
-            l[10] = '0'                   # init
-            l[11] = '\$0_s_%d' % (obj_n)  # send
-            l[12] = '\$0_r_%d' % (obj_n)  # receive
+            l[10] = '0'                   
+            l[11] = '\$0-pdss-s-%d' % (obj_n)  
+            l[12] = '\$0-pdss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 %d hsl %s %s %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
 
         elif l[4] == 'vsl':
-            l[10] = '0'                   # init
-            l[11] = '\$0_s_%d' % (obj_n)  # send
-            l[12] = '\$0_r_%d' % (obj_n)  # receive
+            l[10] = '0'                   
+            l[11] = '\$0-pdss-s-%d' % (obj_n)  
+            l[12] = '\$0-pdss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 %d vsl %s %s %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
 
         elif l[4] == 'tgl':
-            l[6] = '0'                    # init
-            l[7] = '\$0_s_%d' % (obj_n)   # send
-            l[8] = '\$0_r_%d' % (obj_n)   # receive
+            l[6] = '0'                    
+            l[7] = '\$0-pdss-s-%d' % (obj_n)   
+            l[8] = '\$0-pdss-r-%d' % (obj_n)   
             s = '#X obj %d %d %s %s \$0 \$1 %d tgl %s 0 %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[9], l[18])
 
         elif l[4] == 'hradio':
-            l[7] = '0'                    # init
-            l[9] = '\$0_s_%d' % (obj_n)   # send
-            l[10] = '\$0_r_%d' % (obj_n)  # receive
+            l[7] = '0'                    
+            l[9] = '\$0-pdss-s-%d' % (obj_n)   
+            l[10] = '\$0-pdss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 %d hrd %s 0 %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[11], l[8])
 
         elif l[4] == 'vradio':
-            l[7] = '0'                    # init
-            l[9] = '\$0_s_%d' % (obj_n)   # send
-            l[10] = '\$0_r_%d' % (obj_n)  # receive
+            l[7] = '0'                    
+            l[9] = '\$0-pdss-s-%d' % (obj_n)   
+            l[10] = '\$0-pdss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 %d vrd %s 0 %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[11], l[8])
 
         elif l[4] == 'n_knob':
-            l[21] = '0'                        # init
-            l[14] = '\\\\\$0_s_%d' % (obj_n)   # send
-            l[13] = '\\\\\$0_r_%d' % (obj_n)   # receive
+            l[21] = '0'                        
+            l[14] = '\\\\\$0-pdss-s-%d' % (obj_n)   
+            l[13] = '\\\\\$0-pdss-r-%d' % (obj_n)   
             s = '#X obj %d %d %s %s \$0 \$1 %d n_knob %s %s %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[15], l[8], l[9])
 
@@ -540,6 +538,26 @@ def pdss(lpd, ins_name):
             print('pdss: add: %s %s %s %s %s' % (s[8], s[9], s[10], s[11], s[12]))
             obj.append(s)
             obj_n += 1
+        else:
+            print("error: pdss: ", l)
+            exit()
+
+    pos = pos // obj_r
+    pos = (pos+1) * obj_r
+
+    # array for par
+    ox, oy  = pdss_calc_coords(pos);   pos += 1
+    s = '#X obj %d %d %s %s \$0 \$1 %d \$0-pdss-array-%d' % (
+        ox, oy, obj_array, ins_name, 0, 0)
+    s = s.split()
+    print('pdss: add: %s %s' % (s[8], s[9]))
+    obj.append(s)
+
+    arr_n = 1
+    for i in all_arrays:
+        l = lpd[i]
+        ox, oy  = pdss_calc_coords(pos);   pos += 1
+        s = ''
 
         # 1) ins name
         # 2) $0
@@ -554,6 +572,9 @@ def pdss(lpd, ins_name):
             print('pdss: add: %s %s' % (s[8], s[9]))
             obj.append(s)
             arr_n += 1
+        else:
+            print("error: pdss: ", l)
+            exit()
 
     # canvas
     s = '#X restore 20 20 pd %s' % (obj_cnv)

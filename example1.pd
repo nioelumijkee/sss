@@ -12,8 +12,8 @@
 #X obj 246 121 hsl 60 12 0 127 0 0 \$0-pdss-s-4 \$0-pdss-r-4 par_5
 66 6 0 10 #fcfcfc #000000 #000000 0 1;
 #N canvas 0 50 450 250 (subpatch) 0;
-#X array \$0-array1 100 float 2;
-#X coords 0 1 100 -1 100 50 1 0 0;
+#X array \$0-pdss-array1 10 float 2;
+#X coords 0 1 10 -1 100 50 1 0 0;
 #X restore 399 119 graph;
 #X obj 372 117 vsl 20 24 -24 24 0 0 \$0-pdss-s-5 \$0-pdss-r-5 empty
 0 -9 0 10 #fcfcfc #000000 #000000 0 1;
@@ -37,7 +37,7 @@
 0 0 0 0;
 #X coords 0 1 100 -1 100 50 1 0 0;
 #X restore 405 265 graph;
-#N canvas 98 273 1070 424 __pdss__ 0;
+#N canvas 20 20 1070 424 __pdss__ 0;
 #X text 20 20 [Created by pdss.py];
 #X obj 20 44 a_pdss_driver example1 \$0 \$1 13 \$2;
 #X obj 20 68 table \$0-pdss-array-0;
@@ -55,6 +55,6 @@
 #X obj 370 284 a_pdss_par example1 \$0 \$1 11 vrd empty 0 4;
 #X obj 370 308 a_pdss_par example1 \$0 \$1 12 vrd empty 0 4;
 #X obj 720 20 a_pdss_array example1 \$0 \$1 0 \$0-pdss-array-0;
-#X obj 720 44 a_pdss_array example1 \$0 \$1 1 \$0-array1;
-#X restore 23 18 pd __pdss__;
+#X obj 720 44 a_pdss_array example1 \$0 \$1 1 \$0-pdss-array1;
+#X restore 20 20 pd __pdss__;
 #X coords 0 -1 1 1 500 72 1 100 100;
