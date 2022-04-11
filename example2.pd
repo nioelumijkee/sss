@@ -1,28 +1,18 @@
 #N canvas 362 160 693 302 10;
-#X obj 116 153 nbx 5 14 0 100 0 0 \$0-pdss-s-0 \$0-pdss-r-0 par_0 0
--8 0 10 #fcfcfc #000000 #000000 0 256;
-#X obj 182 153 nbx 5 14 0 100 0 0 \$0-pdss-s-1 \$0-pdss-r-1 par_1 0
--8 0 10 #fcfcfc #000000 #000000 0 256;
-#X obj 254 153 nbx 5 14 0 100 0 0 \$0-pdss-s-2 \$0-pdss-r-2 par_2 0
--8 0 10 #fcfcfc #000000 #000000 0 256;
-#X obj 327 154 nbx 5 14 0 100 0 0 \$0-pdss-s-3 \$0-pdss-r-3 par_3 0
--8 0 10 #fcfcfc #000000 #000000 0 256;
-#X obj 185 112 tgl 15 0 \$0-pdss-s-5 \$0-pdss-r-5 par_4 17 7 0 10 #fcfcfc
-#000000 #000000 0 1;
-#X obj 270 113 hsl 60 12 0 127 0 0 \$0-pdss-s-4 \$0-pdss-r-4 par_5
-66 6 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 116 153 nbx 5 14 0 100 0 0 \$0-pdss-s-0 \$0-pdss-r-0 par_0 0 -8 0 10 #fcfcfc #000000 #000000 0 256;
+#X obj 182 153 nbx 5 14 0 100 0 0 \$0-pdss-s-1 \$0-pdss-r-1 par_1 0 -8 0 10 #fcfcfc #000000 #000000 0 256;
+#X obj 254 153 nbx 5 14 0 100 0 0 \$0-pdss-s-2 \$0-pdss-r-2 par_2 0 -8 0 10 #fcfcfc #000000 #000000 0 256;
+#X obj 327 154 nbx 5 14 0 100 0 0 \$0-pdss-s-3 \$0-pdss-r-3 par_3 0 -8 0 10 #fcfcfc #000000 #000000 0 256;
+#X obj 185 112 tgl 15 0 \$0-pdss-s-5 \$0-pdss-r-5 par_4 17 7 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 270 113 hsl 60 12 0 127 0 0 \$0-pdss-s-4 \$0-pdss-r-4 par_5 66 6 0 10 #fcfcfc #000000 #000000 0 1;
 #N canvas 0 50 450 250 (subpatch) 0;
-#X array \$0-pdss-a0 10 float 2;
+#X array \$0-pdss-a1 10 float 2;
 #X coords 0 1 10 -1 100 50 1 0 0;
-#X restore 496 118 graph;
-#X obj 405 120 vradio 8 1 0 4 \$0-pdss-s-6 \$0-pdss-r-6 empty 0 -8
-0 10 #fcfcfc #000000 #000000 0;
-#X obj 425 120 vradio 8 1 0 4 \$0-pdss-s-7 \$0-pdss-r-7 empty 0 -8
-0 10 #fcfcfc #000000 #000000 0;
-#X obj 445 120 vradio 8 1 0 4 \$0-pdss-s-8 \$0-pdss-r-8 empty 0 -8
-0 10 #fcfcfc #000000 #000000 0;
-#X obj 465 120 vradio 8 1 0 4 \$0-pdss-s-9 \$0-pdss-r-9 empty 0 -8
-0 10 #fcfcfc #000000 #000000 0;
+#X restore 428 118 graph;
+#X obj 385 120 vradio 8 1 0 4 \$0-pdss-s-6 \$0-pdss-r-6 empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
+#X obj 395 120 vradio 8 1 0 4 \$0-pdss-s-7 \$0-pdss-r-7 empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
+#X obj 405 120 vradio 8 1 0 4 \$0-pdss-s-8 \$0-pdss-r-8 empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
+#X obj 415 120 vradio 8 1 0 4 \$0-pdss-s-9 \$0-pdss-r-9 empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
 #N canvas 20 20 1070 424 __pdss__ 0;
 #X text 20 20 [Created by pdss.py];
 #X obj 20 44 a_pdss_driver example2 \$0 \$1 10 \$2;
@@ -38,6 +28,14 @@
 #X obj 370 212 a_pdss_par example2 \$0 \$1 8 vrd empty 0 4;
 #X obj 370 236 a_pdss_par example2 \$0 \$1 9 vrd empty 0 4;
 #X obj 720 20 a_pdss_array example2 \$0 \$1 0 \$0-pdss-array-0;
-#X obj 720 44 a_pdss_array example2 \$0 \$1 1 \$0-pdss-a0;
+#X obj 720 44 a_pdss_array example2 \$0 \$1 1 \$0-pdss-a1;
 #X restore 20 20 pd __pdss__;
+#X floatatom 537 109 5 0 0 1 snap - - 0;
+#X obj 537 60 route float;
+#X obj 537 37 r pdss-snap-\$1;
+#X obj 468 66 r pdss-init;
+#X obj 545 138 bng 15 250 50 0 empty empty init 17 7 0 10 #ffffff #00ff04 #000000;
+#X connect 13 0 12 0;
+#X connect 14 0 13 0;
+#X connect 15 0 16 0;
 #X coords 0 -1 1 1 500 72 1 100 100;
