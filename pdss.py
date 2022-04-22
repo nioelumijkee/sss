@@ -528,8 +528,8 @@ def pdss(lpd, ins_name):
 
         elif l[4] == 'n_knob':
             l[21] = '0'                        
-            l[14] = '\\\\\$0-pdss-s-%d' % (obj_n)   
-            l[13] = '\\\\\$0-pdss-r-%d' % (obj_n)   
+            l[13] = '\\\\\$0-pdss-s-%d' % (obj_n)   
+            l[14] = '\\\\\$0-pdss-r-%d' % (obj_n)   
             s = '#X obj %d %d %s %s \$0 \$1 %d n_knob %s %s %s' % (
                 ox, oy, obj_par, ins_name, obj_n, l[15], l[8], l[9])
 
