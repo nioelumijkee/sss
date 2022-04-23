@@ -797,7 +797,7 @@ def pdss_input(args):
 
 
 # ---------------------------------------------------------------------------- #
-def stat(args):
+def stat_input(args):
     msg_err = """usage: 
     -f input_file.pd
     or
@@ -834,7 +834,7 @@ def stat(args):
 
 
 # ---------------------------------------------------------------------------- #
-def objs(args):
+def objs_input(args):
     msg_err = """usage: 
     -d /path/to/dir/with/pd/libs"""
     if args.d == '':
@@ -851,7 +851,7 @@ if __name__ == '__main__':
         description='pure data save state script. version = %s' % (__version__))
     subparsers = parser.add_subparsers(title='subcommands')
 
-    parser_pdss = subparsers.add_parser('file', help='pdss one file')
+    parser_pdss = subparsers.add_parser('pdss', help='pdss one or many files')
     parser_pdss.add_argument('-f', default='', help='input file')
     parser_pdss.add_argument('-o', default='', help='output file')
     parser_pdss.add_argument('-d', default='', help='directory')
@@ -866,11 +866,11 @@ if __name__ == '__main__':
     parser_stat.add_argument('-r', action='store_true', help='recursive')
     parser_stat.add_argument('-H', action='store_true', help='with *help* files')
     parser_stat.add_argument('-c', action='store_true', help='count objects')
-    parser_stat.set_defaults(func=stat)
+    parser_stat.set_defaults(func=stat_input)
 
     parser_objs = subparsers.add_parser('objs', help='find all objs')
     parser_objs.add_argument('-d', default='', help='directory')
-    parser_objs.set_defaults(func=objs)
+    parser_objs.set_defaults(func=objs_input)
 
     args = parser.parse_args()
     if not vars(args):
