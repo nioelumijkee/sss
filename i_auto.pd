@@ -1,7 +1,8 @@
 #N canvas 290 45 954 604 10;
 #X obj 157 380 inlet;
 #X obj 157 456 s;
-#X obj 200 247 bng 15 250 50 0 empty empty empty 4 8 0 10 #fcfcfc #000000 #000000;
+#X obj 200 245 bng 12 250 50 0 empty empty empty 4 8 0 10 #fcfcfc #000000
+#000000;
 #X msg 680 63 1;
 #X msg 596 94 0;
 #X msg 200 118 color 0 22 22;
@@ -10,15 +11,17 @@
 #X obj 157 412 *;
 #X obj 157 433 +;
 #X obj 519 112 t a b;
-#X msg 86 244 color 13 22 22;
+#X msg 86 242 color 13 22 22;
 #X obj 123 99 loadbang;
 #X obj 200 72 r pdss-par-info-get;
 #X obj 680 97 s pdss-par-info-get;
 #X obj 596 123 s pdss-par-info-get;
 #X obj 519 41 r pdss-par-info-return;
 #X obj 519 149 unpack s f f f s s f f f;
-#X obj 554 211 nbx 3 14 -1e+37 1e+37 0 0 \$0-pdss-s-0 \$0-pdss-r-0 empty 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
-#X obj 590 211 nbx 3 14 0 1e+37 0 0 \$0-pdss-s-1 \$0-pdss-r-1 empty 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
+#X obj 554 211 nbx 3 14 -1e+37 1e+37 0 0 \$0-pdss-s-0 \$0-pdss-r-0
+empty 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
+#X obj 590 211 nbx 3 14 0 1e+37 0 0 \$0-pdss-s-1 \$0-pdss-r-1 empty
+0 -8 0 10 #bbbbbb #000000 #000000 0 256;
 #X obj 554 251 pack;
 #X obj 590 228 t b f;
 #X obj 554 274 t b a b;
@@ -35,8 +38,10 @@
 #X msg 707 442 symbol \$1-pdss-r-\$2;
 #X obj 475 347 s pdss-par-info-get;
 #X obj 475 369 r pdss-par-info-return;
-#X obj 215 247 nbx 4 15 0 127 0 0 \$0-pdss-s-2 \$0-pdss-r-2 empty 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
-#X obj 267 247 nbx 4 15 0 127 0 0 \$0-pdss-s-3 \$0-pdss-r-3 empty 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
+#X obj 212 245 nbx 4 12 0 100 0 0 \$0-pdss-s-2 \$0-pdss-r-2 empty 0
+-8 0 10 #bbbbbb #000000 #000000 0 256;
+#X obj 256 245 nbx 4 12 0 100 0 0 \$0-pdss-s-3 \$0-pdss-r-3 empty 0
+-8 0 10 #bbbbbb #000000 #000000 0 256;
 #X obj 384 543 s \$0-auto-max;
 #X obj 280 543 s \$0-auto-min;
 #X obj 215 140 r \$0-auto-min;
@@ -44,9 +49,10 @@
 #X obj 200 424 s \$0-auto-rec;
 #X obj 680 41 r \$0-auto-rec;
 #N canvas 437 439 450 300 win 0;
-#X obj 101 101 cnv 13 110 13 empty \$0-auto-label-ins example1(1) 0 8 0 10 #bbbbbb #000000 0;
-#X coords 0 -1 1 1 112 15 2 100 100;
-#X restore 200 217 pd win;
+#X obj 101 101 cnv 13 98 13 empty \$0-auto-label-ins example3(4) 2
+7 0 8 #bbbbbb #000000 0;
+#X coords 0 -1 1 1 100 15 2 100 100;
+#X restore 200 215 pd win;
 #X obj 267 303 t b f;
 #X obj 215 324 -;
 #X floatatom 215 371 5 0 0 1 range - - 0;
@@ -55,9 +61,10 @@
 #X msg 280 522 range \$7 \$8;
 #X msg 384 522 range \$7 \$8;
 #N canvas 437 439 450 300 win 0;
-#X obj 101 101 cnv 13 110 13 empty \$0-auto-label-par par_5 0 8 0 10 #bbbbbb #000000 0;
-#X coords 0 -1 1 1 112 15 2 100 100;
-#X restore 200 232 pd win;
+#X obj 101 101 cnv 13 98 13 empty \$0-auto-label-par par_1 2 7 0 8
+#bbbbbb #000000 0;
+#X coords 0 -1 1 1 100 15 2 100 100;
+#X restore 200 230 pd win;
 #X obj 655 535 s \$0-auto-label-ins;
 #X obj 796 535 s \$0-auto-label-par;
 #X obj 475 460 t a a a a a;
@@ -136,4 +143,4 @@
 #X connect 55 4 57 0;
 #X connect 56 0 53 0;
 #X connect 57 0 54 0;
-#X coords 0 -1 1 1 112 62 1 200 200;
+#X coords 0 -1 1 1 100 57 1 200 200;
