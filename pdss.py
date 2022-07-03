@@ -1,198 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 # ---------------------------------------------------------------------------- #
 import os
 import argparse
 import re
-
-# ---------------------------------------------------------------------------- #
-# vanila
-# ---------------------------------------------------------------------------- #
-pdvanila_general = [
-    'bang', 'b',
-    'float', 'f',
-    'symbol', 
-    'int', 'i',
-    'send', 'receive', 's', 'r',
-    'select', 'sel',
-    'route',
-    'pack', 'unpack', 
-    'trigger', 't', 
-    'spigot', 'moses', 'until', 'print', 'trace', 
-    'makefilename', 'change', 'swap', 
-    'value', 'v', 
-    'list',
-]
-
-pdvanila_gui = [
-    'bng', 'tgl', 'nbx', 'hsl', 'vsl', 'hradio', 'vradio', 'vu', 'cnv'
-]
-
-pdvanila_time = [
-    'delay', 'del',
-    'metro', 'line', 'timer', 'cputime', 'realtime', 'pipe', 
-]
-
-pdvanila_math = [
-    'expr',
-    '+', '-', '*', '/', 'pow', 
-    '==', '!=', '>', '<', '>=', '<=', 
-    '&', '&&', '|', '||', '%', '<<', '>>', 
-    'mtof', 'ftom', 'powtodb', 'rmstodb', 'dbtopow', 'dbtorms',
-    'mod', 'div',
-    'sin', 'cos', 'tan', 
-    'atan', 'atan2', 
-    'sqrt', 'log', 'exp', 'abs',
-    'random', 
-    'max', 'min', 
-    'clip',
-    'wrap',
-]
-
-pdvanila_io = [
-    'notein', 'ctlin', 'pgmin', 'bendin', 'touchin', 'polytouchin', 
-    'midiin', 'sysexin', 'midirealtimein',
-    'noteout', 'ctlout', 'pgmout', 'bendout', 'touchout', 
-    'polytouchout', 'midiout', 
-    'makenote', 'stripnote', 
-    'poly',
-    'oscparse', 'oscformat',
-    'fudiparse', 'fudiformat',
-]
-
-pdvanila_array = [
-    'tabread', 'tabread4',
-    'tabwrite', 
-    'soundfiler',
-    'table',
-    'array',
-]
-
-pdvanila_misc = [
-    'loadbang',
-    'declare',
-    'savestate',
-    'pdcontrol',
-    'netsend', 'netreceive',
-    'qlist', 
-    'textfile',
-    'text',
-    'file',
-    'openpanel', 'savepanel', 
-    'bag',
-    'key', 'keyup', 'keyname',
-]
-
-pdvanila_audiomath = [
-    'expr~', 'fexpr~',
-    '+~', '-~', '*~', '/~',
-    'min~', 'max~', 
-    'clip~', 
-    'sqrt~', 'rsqrt~', 'q8_sqrt~', 'q8_rsqrt~', 
-    'wrap~',
-    'fft~', 'ifft~', 'rfft~', 'rifft~', 
-    'pow~', 'log~', 'exp~', 'abs~', 
-    'framp~', 
-    'mtof~', 'ftom~', 'rmstodb~', 'dbtorms~', 
-]
-
-pdvanila_general_audio_tools = [
-    'dac~', 'adc~', 
-    'sig~', 
-    'line~', 'vline~',
-    'threshold~',
-    'snapshot~', 'vsnapshot~', 
-    'bang~', 
-    'samplerate~',
-    'send~', 'receive~', 's~', 'r~',
-    'throw~', 'catch~',
-    'block~', 
-    'readsf~', 'writesf~', 
-    'print~',
-]
-
-pdvanila_audio_gen_and_tables = [
-    'noise',
-    'phasor~', 
-    'cos~', 
-    'osc~', 
-    'tabwrite~', 'tabplay~', 'tabread~', 'tabread4~', 
-    'tabosc4~', 'tabsend~','tabreceive~',
-]
-
-pdvanila_audio_filters = [
-    'vcf~', 
-    'env~', 
-    'hip~', 'lop~', 'slop~', 'bp~', 'biquad~', 
-    'samphold~',
-    'rpole~', 'rzero~', 'rzero_rev~', 
-    'cpole~', 'czero~', 'czero_rev~',
-]
-
-pdvanila_audio_delay = [
-    'delwrite~', 'delread~',
-    'delread4~', 'vd~', 
-]
-    
-pdvanila_patch = [
-    'clone',
-#    'pd',
-    'inlet', 'outlet', 'inlet~', 'outlet~',
-    'namecanvas',
-    'block~', 'switch~', # switch deprecated
-]
-
-pdvanila_data = [
-    'struct', 
-    'drawcurve', 'filledcurve',
-    'drawpolygon', 'filledpolygon',
-    'drawnumber', 'drawsymbol', 'drawtext',
-    'plot',
-]
-
-pdvanila_acc_data = [
-    'pointer', 
-    'get', 'set', 
-    'element', 
-    'getsize', 'setsize', 
-    'append', 'scalar',
-]
-
-pdvanila_extra = [
-    'signund~',
-    'bonk~',
-    'choice',
-    'hilbert~', 'complex-mod',
-    'loop~',
-    'lrshift~',
-    'pd~',
-    'stdout',
-    'rev1~', 'rev2~', 'rev3~',
-    'bob~',
-    'output~'
-]
-
-pdvanila = (
-    pdvanila_general +
-    pdvanila_gui +
-    pdvanila_time +
-    pdvanila_math +
-    pdvanila_io +
-    pdvanila_array +
-    pdvanila_misc +
-    pdvanila_audiomath +
-    pdvanila_general_audio_tools +
-    pdvanila_audio_gen_and_tables +
-    pdvanila_audio_filters +
-    pdvanila_audio_delay +
-    pdvanila_patch +
-    pdvanila_data +
-    pdvanila_acc_data +
-    pdvanila_extra
-)
 
 
 # ---------------------------------------------------------------------------- #
@@ -283,7 +97,7 @@ def split():
 
 
 # ---------------------------------------------------------------------------- #
-# convert pdfile to pd list
+# convert pd file to pd list
 # ---------------------------------------------------------------------------- #
 def pdfile2pdlist(filename):
     "convert pd file to list"
@@ -310,6 +124,8 @@ def pdfile2pdlist(filename):
     return(res)
 
 
+# ---------------------------------------------------------------------------- #
+# convert pd list to pd file
 # ---------------------------------------------------------------------------- #
 def pdlist2pdfile(filename, l):
     "convert list to pd file"
@@ -628,131 +444,6 @@ def pdss_treat_files(files_in, files_out, quitet):
 
 
 # ---------------------------------------------------------------------------- #
-# stat
-# ---------------------------------------------------------------------------- #
-def stat_one_file(file_in, objs_vanila, objs_not_vanila):
-    f = None
-    try:
-        f = open(file_in)
-    except:
-        print("error: stat_one_file: open %s" % (file_in))
-        return
-
-    pdl = pdfile2pdlist(file_in)
-    for i in pdl:
-        if len(i) >= 5:
-            if i[0] == '#X' and i[1] == 'obj':
-                n = i[4].replace(',','')
-                if not n in pdvanila:
-                    if not n in objs_not_vanila:
-                        objs_not_vanila.append(n)
-                else:
-                    if not n in objs_vanila:
-                        objs_vanila.append(n)
-
-
-# ---------------------------------------------------------------------------- #
-def stat_one_file_count(file_in, objs_vanila, objs_not_vanila):
-    f = None
-    try:
-        f = open(file_in)
-    except:
-        print("error: stat_one_file: open %s" % (file_in))
-        return
-
-    pdl = pdfile2pdlist(file_in)
-    for i in pdl:
-        if len(i) >= 5:
-            if i[0] == '#X' and i[1] == 'obj':
-                n = i[4].replace(',','')
-                if not n in pdvanila:
-                    if not n in objs_not_vanila:
-                        objs_not_vanila[n] = 1
-                    else:
-                        objs_not_vanila[n] += 1
-                else:
-                    if not n in objs_vanila:
-                        objs_vanila[n] = 1
-                    else:
-                        objs_vanila[n] += 1
-
-
-# ---------------------------------------------------------------------------- #
-def stat_treat_files(files_in, c):
-    split()
-    print('all:')
-    for i in files_in:
-        print(i)
-    if c:
-        objs_vanila = {}
-        objs_not_vanila = {}
-        for i in files_in:
-            stat_one_file_count(i, objs_vanila, objs_not_vanila)
-        split()
-        print("vanila objects:")
-        for i in objs_vanila:
-            print(i, ' : ', objs_vanila[i])
-        split()
-        print("not vanila objects:")
-        for i in objs_not_vanila:
-            print(i, ' : ', objs_not_vanila[i])
-
-    else:
-        objs_vanila = []
-        objs_not_vanila = []
-        for i in files_in:
-            stat_one_file(i, objs_vanila, objs_not_vanila)
-        split()
-        print("vanila objects:")
-        print(objs_vanila)
-        split()
-        print("not vanila objects:")
-        print(objs_not_vanila)
-
-
-# ---------------------------------------------------------------------------- #
-# objs
-# ---------------------------------------------------------------------------- #
-def objs_treat_files(path):
-    split()
-
-    all = {}
-    dirs = os.listdir(path)
-
-    regex_pd = re.compile(".pd$")
-    regex_help_start = re.compile("^help-")
-    regex_help_end = re.compile("-help.pd$")
-
-    for d in dirs:
-        all[d] = []
-
-        buf = os.listdir("%s/%s" % (path,d))
-        for f in buf:
-            if os.path.isfile("%s/%s/%s" % (path,d,f)):
-                r = regex_pd.search(f)
-                if r:
-                    r = regex_help_start.search(f)
-                    if r:
-                        str = f[5:-3]
-                        all[d].append(str)
-
-                    r = regex_help_end.search(f)
-                    if r:
-                        str = f[:-8]
-                        all[d].append(str)
-
-    # print
-    ks = list(all.keys())
-    ks.sort()
-
-    print(path)
-    for key in ks:
-        split()
-        print(path + '/' + key)
-        print(all[key])
-
-
-# ---------------------------------------------------------------------------- #
 # input function
 # ---------------------------------------------------------------------------- #
 def pdss_input(args):
@@ -797,80 +488,17 @@ def pdss_input(args):
 
 
 # ---------------------------------------------------------------------------- #
-def stat_input(args):
-    msg_err = """usage: 
-    -f input_file.pd
-    or
-    -d /path/to/dir/with/pd/files"""
-    f = 1
-    # -f
-    if args.f != '':
-        if args.d != '':
-            print(msg_err)
-            exit()
-        else:
-            f = 1
-    elif args.d == '':
-        print(msg_err)
-        exit()
-    else:
-        f = 0
-
-    # one file
-    if f:
-        files_in = [args.f]
-        files_in = find_pd_files(files_in, args.H)
-    # dir
-    else:
-        path = path_norm(args.d)
-        files_in = []
-        if args.r:
-            find_all_files_in_dir_rec(path, files_in)
-        else:
-            files_in = find_all_files_in_dir(path)
-        files_in = find_pd_files(files_in, args.H)
-
-    stat_treat_files(files_in, args.c)
-
-
-# ---------------------------------------------------------------------------- #
-def objs_input(args):
-    msg_err = """usage: 
-    -d /path/to/dir/with/pd/libs"""
-    if args.d == '':
-        print(msg_err)
-        exit()
-
-    path = path_norm(args.d)
-    objs_treat_files(path)
-
-
-# ---------------------------------------------------------------------------- #
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='pure data save state script. version = %s' % (__version__))
-    subparsers = parser.add_subparsers(title='subcommands')
 
-    parser_pdss = subparsers.add_parser('pdss', help='pdss one or many files')
-    parser_pdss.add_argument('-f', default='', help='input file')
-    parser_pdss.add_argument('-o', default='', help='output file')
-    parser_pdss.add_argument('-d', default='', help='directory')
-    parser_pdss.add_argument('-r', action='store_true', help='recursive')
-    parser_pdss.add_argument('-H', action='store_true', help='with *help* files')
-    parser_pdss.add_argument('-q', action='store_true', help='quitet')
-    parser_pdss.set_defaults(func=pdss_input)
-
-    parser_stat = subparsers.add_parser('stat', help='statistics')
-    parser_stat.add_argument('-f', default='', help='file')
-    parser_stat.add_argument('-d', default='', help='directory')
-    parser_stat.add_argument('-r', action='store_true', help='recursive')
-    parser_stat.add_argument('-H', action='store_true', help='with *help* files')
-    parser_stat.add_argument('-c', action='store_true', help='count objects')
-    parser_stat.set_defaults(func=stat_input)
-
-    parser_objs = subparsers.add_parser('objs', help='find all objs')
-    parser_objs.add_argument('-d', default='', help='directory')
-    parser_objs.set_defaults(func=objs_input)
+    parser.add_argument('-f', default='', help='input file')
+    parser.add_argument('-o', default='', help='output file')
+    parser.add_argument('-d', default='', help='directory')
+    parser.add_argument('-r', action='store_true', help='recursive')
+    parser.add_argument('-H', action='store_true', help='with *help* files')
+    parser.add_argument('-q', action='store_true', help='quitet')
+    parser.set_defaults(func=pdss_input)
 
     args = parser.parse_args()
     if not vars(args):
