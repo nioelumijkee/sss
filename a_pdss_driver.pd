@@ -1,4 +1,4 @@
-#N canvas 1001 140 932 507 12;
+#N canvas 296 15 960 693 12;
 #X text 51 63 1) name ins;
 #X text 51 124 4) number parameters in snap;
 #X obj 28 399 * \$4;
@@ -12,8 +12,8 @@
 #X obj 394 284 i \$4;
 #X obj 394 329 *;
 #X obj 429 305 max 1;
-#X obj 28 420 s \$2-pdss-load-par;
-#X obj 72 466 s \$2-pdss-save-par;
+#X obj 23 568 s \$2-pdss-load-par;
+#X obj 187 516 s \$2-pdss-save-par;
 #X obj 394 121 pdcontrol;
 #X msg 394 100 args 0;
 #X obj 394 142 t a a;
@@ -21,14 +21,13 @@
 #X obj 433 188 == 5;
 #X obj 394 210 spigot;
 #X obj 28 6 r pdss-snap-\$3;
-#X obj 72 445 i 0;
+#X obj 187 495 i 0;
 #X obj 72 389 bang;
 #X text 382 454 resize par array if exist.;
 #X obj 496 84 table \$0-buffer;
 #X obj 394 263 t b b b;
 #X obj 468 282 i \$4;
-#X msg 394 388 \; \$2-pdss-array-0 resize \$1 \; \$4-buffer resize
-\$3;
+#X msg 394 388 \; \$2-pdss-array-0 resize \$1 \; \$4-buffer resize \$3;
 #X obj 394 350 pack f \$2 f \$0;
 #N canvas 0 16 400 337 copy 0;
 #X obj 146 50 inlet;
@@ -58,7 +57,7 @@
 #X connect 10 0 8 0;
 #X connect 11 0 10 1;
 #X restore 117 315 pd copy;
-#X obj 182 418 s \$0-offset;
+#X obj 74 532 s \$0-offset;
 #N canvas 0 16 436 377 paste 0;
 #X obj 84 44 inlet;
 #X obj 117 90 i \$4;
@@ -783,6 +782,11 @@
 #X obj 659 174 sel 1;
 #X obj 659 217 pdcontrol;
 #X msg 659 196 args 0;
+#X obj 672 302 r pdss-send-\$3;
+#X obj 672 323 unpack;
+#X obj 672 385 s;
+#X msg 711 366 symbol \$2-pdss-r-\$1;
+#X obj 711 345 pack f \$2;
 #X connect 2 0 13 0;
 #X connect 2 0 22 1;
 #X connect 2 0 31 0;
@@ -823,3 +827,8 @@
 #X connect 41 0 43 0;
 #X connect 42 0 38 0;
 #X connect 43 0 42 0;
+#X connect 44 0 45 0;
+#X connect 45 0 46 0;
+#X connect 45 1 48 0;
+#X connect 47 0 46 1;
+#X connect 48 0 47 0;

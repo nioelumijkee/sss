@@ -1,57 +1,39 @@
-#N canvas 360 118 756 472 10;
-#X obj 300 117 hradio 14 1 0 8 empty empty empty 0 -8 0 10 #fcfcfc
-#000000 #000000 0;
+#N canvas 302 130 756 472 10;
+#X obj 300 117 hradio 14 1 0 8 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
 #X msg 60 146 save;
 #X msg 217 177 paste;
 #X msg 129 163 save \, copy;
-#X obj 357 154 bng 14 250 50 0 empty empty save 17 7 0 10 #c7c6ff #000000
-#000000;
+#X obj 357 154 bng 14 250 50 0 empty empty save 17 7 0 10 #c7c6ff #000000 #000000;
 #X obj 466 185 savepanel;
-#X obj 357 140 bng 14 250 50 0 empty empty open 17 7 0 10 #c7c6ff #000000
-#000000;
+#X obj 357 140 bng 14 250 50 0 empty empty open 17 7 0 10 #c7c6ff #000000 #000000;
 #X msg 628 156 open \$1 \, paste;
 #X obj 628 135 openpanel;
 #X msg 466 206 save \, copy \, save_as \$1;
-#X obj 300 183 bng 15 250 50 0 empty empty nbx 17 7 0 10 #ff8300 #000000
-#000000;
-#X obj 352 183 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb
-#000000 #000000 100 256;
+#X obj 300 183 bng 15 250 50 0 empty empty nbx 17 7 0 10 #ff8300 #000000 #000000;
+#X obj 352 183 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb #000000 #000000 100 256;
 #X obj 603 292 * 0.01;
-#X obj 300 132 bng 14 250 50 0 empty empty save 17 7 0 10 #fcfcfc #000000
-#000000;
-#X obj 300 149 bng 14 250 50 0 empty empty copy 17 7 0 10 #c6ffc7 #000000
-#000000;
-#X obj 300 163 bng 14 250 50 0 empty empty paste 17 7 0 10 #c6ffc7
-#000000 #000000;
+#X obj 300 132 bng 14 250 50 0 empty empty save 17 7 0 10 #fcfcfc #000000 #000000;
+#X obj 300 149 bng 14 250 50 0 empty empty copy 17 7 0 10 #c6ffc7 #000000 #000000;
+#X obj 300 163 bng 14 250 50 0 empty empty paste 17 7 0 10 #c6ffc7 #000000 #000000;
 #X obj 56 245 outlet;
-#X obj 388 183 tgl 14 1 empty empty empty 17 7 0 10 #bbbbbb #000000
-#000000 0 1;
+#X obj 388 183 tgl 14 1 empty empty empty 17 7 0 10 #bbbbbb #000000 #000000 0 1;
 #X msg 570 334 rand nbx \$2 \$3;
 #X obj 570 313 pack f f f;
-#X obj 300 198 bng 14 250 50 0 empty empty sl 17 7 0 10 #ff8300 #000000
-#000000;
-#X obj 352 197 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb
-#000000 #000000 100 256;
+#X obj 300 198 bng 14 250 50 0 empty empty sl 17 7 0 10 #ff8300 #000000 #000000;
+#X obj 352 197 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb #000000 #000000 100 256;
 #X obj 486 326 * 0.01;
-#X obj 388 197 tgl 14 1 empty empty empty 17 7 0 10 #bbbbbb #000000
-#000000 0 1;
+#X obj 388 197 tgl 14 1 empty empty empty 17 7 0 10 #bbbbbb #000000 #000000 0 1;
 #X obj 453 348 pack f f f;
 #X msg 453 369 rand sl \$2 \$3;
-#X obj 300 212 bng 14 250 50 0 empty empty radio 17 7 0 10 #ff8300
-#000000 #000000;
-#X obj 352 211 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb
-#000000 #000000 100 256;
+#X obj 300 212 bng 14 250 50 0 empty empty radio 17 7 0 10 #ff8300 #000000 #000000;
+#X obj 352 211 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb #000000 #000000 100 256;
 #X obj 366 327 * 0.01;
 #X msg 311 370 rand radio \$2;
-#X obj 300 226 bng 14 250 50 0 empty empty tgl 17 7 0 10 #ff8300 #000000
-#000000;
-#X obj 300 240 bng 14 250 50 0 empty empty knob 17 7 0 10 #ff8300 #000000
-#000000;
-#X obj 352 240 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb
-#000000 #000000 100 256;
+#X obj 300 226 bng 14 250 50 0 empty empty tgl 17 7 0 10 #ff8300 #000000 #000000;
+#X obj 300 240 bng 14 250 50 0 empty empty knob 17 7 0 10 #ff8300 #000000 #000000;
+#X obj 352 240 nbx 3 14 0 100 0 1 empty empty empty 0 -8 0 10 #bbbbbb #000000 #000000 100 256;
 #X obj 177 333 * 0.01;
-#X obj 388 240 tgl 14 1 empty empty empty 17 7 0 10 #bbbbbb #000000
-#000000 0 1;
+#X obj 388 240 tgl 14 1 empty empty empty 17 7 0 10 #bbbbbb #000000 #000000 0 1;
 #X obj 144 357 pack f f f;
 #X msg 144 378 rand knob \$2 \$3;
 #X msg 87 300 rand tgl;

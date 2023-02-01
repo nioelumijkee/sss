@@ -226,7 +226,7 @@
 #X connect 23 3 8 0;
 #X connect 25 0 24 0;
 #X restore 73 220 pd load file to main;
-#N canvas 185 39 469 685 main 0;
+#N canvas 185 39 469 685 main 1;
 #X obj 207 96 tabread \$0-pdss-main;
 #X msg 207 74 1;
 #X obj 208 171 * 3;
@@ -244,7 +244,7 @@
 #X obj 185 411 spigot;
 #X msg 378 347 1;
 #X msg 155 354 0;
-#N canvas 0 75 737 537 load 0;
+#N canvas 0 75 737 537 load 1;
 #X obj 188 74 inlet;
 #X text 96 39 ins-name id0 id1 num_array name_array size;
 #X obj 514 83 inlet reset;

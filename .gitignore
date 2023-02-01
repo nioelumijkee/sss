@@ -1,2 +1,3 @@
-.old/
 *.txt
+*.pyc
+TODO.md

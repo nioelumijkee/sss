@@ -1,0 +1,6 @@
+#N canvas 591 399 545 334 12;
+#X obj 229 153 list append \$1 \$2 \$3 \$4 \$5 \$6;
+#X obj 229 132 r \$3-sss-get-info-array;
+#X obj 229 174 s \$3-sss-get-info-array-return;
+#X connect 0 0 2 0;
+#X connect 1 0 0 0;

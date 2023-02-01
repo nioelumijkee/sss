@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.4'
+__version__ = '0.5'
 
-# ---------------------------------------------------------------------------- #
 import os
 import argparse
 import re
-
 
 # ---------------------------------------------------------------------------- #
 # files
@@ -81,7 +79,6 @@ def path_norm(path):
 def split():
     print('='*80)
 
-
 # ---------------------------------------------------------------------------- #
 # convert pd file
 # ---------------------------------------------------------------------------- #
@@ -135,6 +132,24 @@ def find_all_object(lpd, obj):
                 res.append(i)
     return res
 
+def find_all_arrays(lpd):
+    res = []
+    ar = 0
+    n = -1
+    for i in range(len(lpd)):
+        l = lpd[i]
+        if ar == 0 and l[0] == '#X' and l[1] == 'array':
+            if l[2].find('sss') != -1:
+                ar = 1
+                n = i
+        if ar == 1 and l[0] == '#A':
+            n = -1
+        if ar == 1 and l[0] == '#X' and l[1] == 'coords':
+            ar = 0
+            if n != -1:
+                res.append(n)
+    return res
+
 def find_canvas(lpd, cnv):
     st = -1
     en = -1
@@ -152,60 +167,41 @@ def find_canvas(lpd, cnv):
                 break
     return (st, en)
 
-def find_all_arrays(lpd):
+def remove_canvas(lpd, st, en):
     res = []
-    ar = 0
-    n = -1
     for i in range(len(lpd)):
-        l = lpd[i]
-        if ar == 0 and l[0] == '#X' and l[1] == 'array':
-            if l[2].find('pdss') != -1:
-                ar = 1
-                n = i
-        if ar == 1 and l[0] == '#A':
-            n = -1
-        if ar == 1 and l[0] == '#X' and l[1] == 'coords':
-            ar = 0
-            if n != -1:
-                res.append(n)
+        if i < st or i > en:
+            res.append(lpd[i])
     return res
 
 # ---------------------------------------------------------------------------- #
-# pdss
+# sss
 # ---------------------------------------------------------------------------- #
-obj_ox = 20  # offset
-obj_oy = 20
-obj_ix = 350 # inc
-obj_iy = 24
-obj_r = 16 # row
-cnv_w = obj_ox + (obj_ix * 3) 
-cnv_h = obj_oy + (obj_iy * obj_r) + obj_oy
-
-def pdss_calc_coords(pos):
-    x  = pos // obj_r # position
-    y  = pos % obj_r
-    ox = obj_ox + (obj_ix * x) # coords
-    oy = obj_oy + (obj_iy * y)
+def calc_coords(coord, pos):
+    x  = pos // coord['obj_r'] # position
+    y  = pos %  coord['obj_r']
+    ox = coord['obj_ox'] + (coord['obj_ix'] * x) # coords
+    oy = coord['obj_oy'] + (coord['obj_iy'] * y)
     return(ox, oy)
 
 
-# ---------------------------------------------------------------------------- #
-def pdss(lpd, ins_name):
-    obj_cnv    = '__pdss__'
-    obj_driver = 'a_pdss_driver'
-    obj_par    = 'a_pdss_par'
-    obj_array  = 'a_pdss_array'
+def sss(lpd, ins_name):
+    obj_cnv    = '__sss__'
+    obj_par    = 'sss_par'
+    obj_array  = 'sss_array'
+    coord = {'obj_ox' : 20,  # offset
+             'obj_oy' : 20,
+             'obj_ix' : 350, # inc
+             'obj_iy' : 24,
+             'obj_r'  : 16} # row
+    cnv_w = coord['obj_ox'] + (coord['obj_ix'] * 3) 
+    cnv_h = coord['obj_oy'] + (coord['obj_iy'] * coord['obj_r']) + coord['obj_oy']
 
-
-    # find ss canvas
+    # find and remove old obj_cnv
     st, en = find_canvas(lpd, obj_cnv)
     if st != -1 and en != -1:
-        print('pdss: find: old "%s" object' % (obj_cnv))
-        b = []
-        for i in range(len(lpd)):
-            if i < st or i > en:
-                b.append(lpd[i])
-        lpd = b
+        print('sss: find: old "%s" object' % (obj_cnv))
+        lpd = remove_canvas(lpd, st, en)
 
     # find gui objects and arrays
     all_nbx     = find_all_object(lpd, 'nbx')
@@ -215,6 +211,7 @@ def pdss(lpd, ins_name):
     all_hradio  = find_all_object(lpd, 'hradio')
     all_vradio  = find_all_object(lpd, 'vradio')
     all_n_knob  = find_all_object(lpd, 'n_knob')
+    all_arrays  = find_all_arrays(lpd)
     all_obj = (
         all_nbx +
         all_hsl +
@@ -222,152 +219,110 @@ def pdss(lpd, ins_name):
         all_tgl +
         all_hradio +
         all_vradio +
-        all_n_knob
+        all_n_knob +
+        all_arrays
     )
-    all_arrays  = find_all_arrays(lpd)
 
     obj = []
 
     # canvas
     s = '#N canvas 20 20 %d %d %s 0' % (cnv_w, cnv_h, obj_cnv)
-    s = s.split()
-    obj.append(s)
+    obj.append(s.split())
 
     pos = 0
-
-    # comment
-    ox, oy  = pdss_calc_coords(pos);    pos += 1
-    s = '#X text %d %d [Created by pdss.py]' % (ox, oy)
-    s = s.split()
-    obj.append(s)
-
-    # driver
-    ox, oy  = pdss_calc_coords(pos);    pos += 1
-    s = '#X obj %d %d %s %s \$0 \$1 %d \$2' % (
-        ox, oy, obj_driver,ins_name, len(all_obj))
-    s = s.split()
-    obj.append(s)
-
-    # array for par
-    ox, oy  = pdss_calc_coords(pos);    pos += 1
-    s = '#X obj %d %d table \$0-pdss-array-%d' % (ox, oy, 0)
-    s = s.split()
-    obj.append(s)
-    
-    pos = obj_r
     obj_n = 0
+    arr_n = 0
     for i in all_obj:
         l = lpd[i]
-        ox, oy  = pdss_calc_coords(pos);   pos += 1
+        ox, oy  = calc_coords(coord, pos);   pos += 1
         s = ''
-        
+       
         # 1) ins name
         # 2) $0
         # 3) $1
-        # 4) number
-        # 5) type obj
-        # 6) name
-        # 7) lower
-        # 8) upper
+        # 4) $2
+        # 5) number par
+        # 6) type par
+        # 7) label par
+        # 8) rng lower par
+        # 9) rng upper par
+        # 10) step par
 
         if l[4] == 'nbx':
             l[10] = '0'                   
-            l[11] = '\$0-pdss-s-%d' % (obj_n)  
-            l[12] = '\$0-pdss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 %d nbx %s %s %s' % (
+            l[11] = '\$0-sss-s-%d' % (obj_n)  
+            l[12] = '\$0-sss-r-%d' % (obj_n)  
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d nbx %s %s %s 0.01' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
 
         elif l[4] == 'hsl':
             l[10] = '0'                   
-            l[11] = '\$0-pdss-s-%d' % (obj_n)  
-            l[12] = '\$0-pdss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 %d hsl %s %s %s' % (
+            l[11] = '\$0-sss-s-%d' % (obj_n)  
+            l[12] = '\$0-sss-r-%d' % (obj_n)  
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d hsl %s %s %s 0.01' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
 
         elif l[4] == 'vsl':
             l[10] = '0'                   
-            l[11] = '\$0-pdss-s-%d' % (obj_n)  
-            l[12] = '\$0-pdss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 %d vsl %s %s %s' % (
+            l[11] = '\$0-sss-s-%d' % (obj_n)  
+            l[12] = '\$0-sss-r-%d' % (obj_n)  
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d vsl %s %s %s 0.01' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
 
         elif l[4] == 'tgl':
             l[6] = '0'                    
-            l[7] = '\$0-pdss-s-%d' % (obj_n)   
-            l[8] = '\$0-pdss-r-%d' % (obj_n)   
-            s = '#X obj %d %d %s %s \$0 \$1 %d tgl %s 0 %s' % (
+            l[7] = '\$0-sss-s-%d' % (obj_n)   
+            l[8] = '\$0-sss-r-%d' % (obj_n)   
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d tgl %s 0 %s 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[9], l[18])
 
         elif l[4] == 'hradio':
             l[7] = '0'                    
-            l[9] = '\$0-pdss-s-%d' % (obj_n)   
-            l[10] = '\$0-pdss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 %d hrd %s 0 %s' % (
+            l[9] = '\$0-sss-s-%d' % (obj_n)   
+            l[10] = '\$0-sss-r-%d' % (obj_n)  
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d hrd %s 0 %s 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[11], l[8])
 
         elif l[4] == 'vradio':
             l[7] = '0'                    
-            l[9] = '\$0-pdss-s-%d' % (obj_n)   
-            l[10] = '\$0-pdss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 %d vrd %s 0 %s' % (
+            l[9] = '\$0-sss-s-%d' % (obj_n)   
+            l[10] = '\$0-sss-r-%d' % (obj_n)  
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d vrd %s 0 %s 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[11], l[8])
 
         elif l[4] == 'n_knob':
             l[21] = '0'                        
-            l[13] = '\\\\\$0-pdss-s-%d' % (obj_n)   
-            l[14] = '\\\\\$0-pdss-r-%d' % (obj_n)   
-            s = '#X obj %d %d %s %s \$0 \$1 %d n_knob %s %s %s' % (
-                ox, oy, obj_par, ins_name, obj_n, l[15], l[8], l[9])
-
-        if s != '':
-            s = s.split()
-            print('pdss: add: %s %s %s %s %s' % (s[8], s[9], s[10], s[11], s[12]))
-            obj.append(s)
-            obj_n += 1
-        else:
-            print("error: pdss: ", l)
-            exit()
-
-    pos = pos // obj_r
-    pos = (pos+1) * obj_r
-
-    # array for par
-    ox, oy  = pdss_calc_coords(pos);   pos += 1
-    s = '#X obj %d %d %s %s \$0 \$1 %d \$0-pdss-array-%d' % (
-        ox, oy, obj_array, ins_name, 0, 0)
-    s = s.split()
-    print('pdss: add: %s %s' % (s[8], s[9]))
-    obj.append(s)
-
-    arr_n = 1
-    for i in all_arrays:
-        l = lpd[i]
-        ox, oy  = pdss_calc_coords(pos);   pos += 1
-        s = ''
+            l[13] = '\\\\\$0-sss-s-%d' % (obj_n)                          # FIX
+            l[14] = '\\\\\$0-sss-r-%d' % (obj_n)                          # FIX
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d n_knob %s %s %s 0' % ( # FIX
+                ox, oy, obj_par, ins_name, obj_n, l[15], l[8], l[9])      # FIX
 
         # 1) ins name
         # 2) $0
         # 3) $1
-        # 4) number
-        # 5) name
+        # 4) $2
+        # 5) number array
+        # 6) name array
 
-        if l[1] == 'array':
-            s = '#X obj %d %d %s %s \$0 \$1 %d %s' % (
+        elif l[1] == 'array':
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d %s' % (
                 ox, oy, obj_array, ins_name, arr_n, l[2])
-            s = s.split()
-            print('pdss: add: %s %s' % (s[8], s[9]))
-            obj.append(s)
             arr_n += 1
+
+        if s != '':
+            s = s.split()
+            print('sss: add:', ' '.join(s[4:]))
+            obj.append(s)
+            obj_n += 1
         else:
-            print("error: pdss: ", l)
+            print("error: sss: ", l)
             exit()
 
     # canvas
     s = '#X restore 20 20 pd %s' % (obj_cnv)
-    s = s.split()
-    obj.append(s)
+    obj.append(s.split())
 
-    # add to list if find
+    # add to pd list
     if st != -1 and en != -1:
         j = st
         for i in obj:
@@ -377,22 +332,18 @@ def pdss(lpd, ins_name):
         for i in obj:
             lpd.append(i)
 
+    print('sss: done')
+    return lpd
 
-    print('pdss: done')
-    return(lpd)
 
-
-# ---------------------------------------------------------------------------- #
-def pdss_one_file(filename_in, filename_out):
+def sss_one_file(filename_in, filename_out):
     name = os.path.splitext(filename_in)[0].split('/')[-1]
     print('name: ', name)
     pdl = pdfile2pdlist(filename_in)
-    pdl = pdss(pdl, name)
+    pdl = sss(pdl, name)
     pdlist2pdfile(filename_out, pdl)
 
-
-# ---------------------------------------------------------------------------- #
-def pdss_treat_files(files_in, files_out, quitet):
+def sss_treat_files(files_in, files_out, quitet):
     split()
     print('all:')
     for i in range(len(files_in)):
@@ -408,22 +359,22 @@ def pdss_treat_files(files_in, files_out, quitet):
             if usin == 'q':
                 exit()
             if usin == 'y':
-                pdss_one_file(files_in[i], files_out[i])
+                sss_one_file(files_in[i], files_out[i])
         else:
-            pdss_one_file(files_in[i], files_out[i])
+            sss_one_file(files_in[i], files_out[i])
 
 
 # ---------------------------------------------------------------------------- #
 # input function
 # ---------------------------------------------------------------------------- #
-def pdss_input(args):
+def sss_input(args):
     msg_err = """usage: 
-    -f input_file.pd -o output_file.pd
+    -i input_file.pd -o output_file.pd
     or
     -d /path/to/dir/with/pd/files"""
     f = 1
     # -f -o
-    if args.f != '':
+    if args.i != '':
         if args.o == '':
             print(msg_err)
             exit()
@@ -440,7 +391,7 @@ def pdss_input(args):
 
     # one file
     if f:
-        files_in = [args.f]
+        files_in = [args.i]
         files_out = [args.o]
         files_in = find_pd_files(files_in, args.H)
     # dir
@@ -454,22 +405,20 @@ def pdss_input(args):
         files_in = find_pd_files(files_in, args.H)
         files_out = files_in
 
-    pdss_treat_files(files_in, files_out, args.q)
+    sss_treat_files(files_in, files_out, args.q)
 
 
 # ---------------------------------------------------------------------------- #
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='pure data save state script. version = %s' % (__version__))
-
-    parser.add_argument('-f', default='', help='input file')
+        description='pure data save state system script. version = %s' % (__version__))
+    parser.add_argument('-i', default='', help='input file')
     parser.add_argument('-o', default='', help='output file')
     parser.add_argument('-d', default='', help='directory')
     parser.add_argument('-r', action='store_true', help='recursive')
     parser.add_argument('-H', action='store_true', help='with *help* files')
     parser.add_argument('-q', action='store_true', help='quitet')
-    parser.set_defaults(func=pdss_input)
-
+    parser.set_defaults(func=sss_input)
     args = parser.parse_args()
     if not vars(args):
         parser.print_usage()
