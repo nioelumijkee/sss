@@ -1,6 +1,6 @@
-#N canvas 407 199 545 334 12;
-#X obj 164 133 list append \$1 \$2 \$3 \$4 \$5 \$6;
+#N canvas 440 363 580 331 12;
 #X obj 164 112 r \$3-sss-get-info-array;
-#X obj 164 154 s \$3-sss-get-info-array-return;
+#X obj 164 165 s \$3-sss-get-info-array-return;
+#X obj 164 132 list prepend get-info-array-return \$1 \$2 \$3 \$4 \$5 \$6, f 34;
 #X connect 0 0 2 0;
-#X connect 1 0 0 0;
+#X connect 2 0 1 0;

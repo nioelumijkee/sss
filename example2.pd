@@ -13,11 +13,11 @@
 #X obj 395 120 vradio 8 1 0 4 \$0-sss-s-7 \$0-sss-r-7 empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
 #X obj 405 120 vradio 8 1 0 4 \$0-sss-s-8 \$0-sss-r-8 empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
 #X obj 415 120 vradio 8 1 0 4 \$0-sss-s-9 \$0-sss-r-9 empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
-#X floatatom 537 109 5 0 0 1 snap - - 0;
+#X floatatom 537 123 5 0 0 1 snap - - 0;
 #X obj 537 60 route float;
 #X obj 537 37 r pdss-snap-\$1;
 #X obj 468 66 r pdss-init;
-#X obj 545 138 bng 15 250 50 0 empty empty init 17 7 0 10 #ffffff #00ff04 #000000;
+#X obj 545 152 bng 15 250 50 0 empty empty init 17 7 0 10 #ffffff #00ff04 #000000;
 #N canvas 20 20 1070 424 __sss__ 0;
 #X obj 20 20 sss_par example2 \$0 \$1 \$2 0 nbx par_0 0 100 0.01;
 #X obj 20 44 sss_par example2 \$0 \$1 \$2 1 nbx par_1 0 100 0.01;
@@ -31,6 +31,7 @@
 #X obj 20 236 sss_par example2 \$0 \$1 \$2 9 vrd empty 0 4 1;
 #X obj 20 260 sss_array example2 \$0 \$1 \$2 0 \$0-sss-a1;
 #X restore 20 20 pd __sss__;
+#X obj 586 100 sss_focus \$1 \$2;
 #X connect 12 0 11 0;
 #X connect 13 0 12 0;
 #X connect 14 0 15 0;

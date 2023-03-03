@@ -21,7 +21,7 @@
 #A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.88 0 0 0 0 0 0 0 0 0 0.76 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
 #X coords 0 1 100 -1 100 50 1 0 0;
 #X restore 405 265 graph;
-#X floatatom 537 109 5 0 0 1 snap - - 0;
+#X floatatom 537 130 5 0 0 1 snap - - 0;
 #X obj 537 60 route float;
 #X obj 537 37 r pdss-snap-\$1;
 #X obj 403 20 r pdss-init;
@@ -42,6 +42,7 @@
 #X obj 20 308 sss_par example1 \$0 \$1 \$2 12 vrd empty 0 4 1;
 #X obj 20 332 sss_array example1 \$0 \$1 \$2 0 \$0-sss-a1;
 #X restore 20 20 pd __sss__;
+#X obj 586 100 sss_focus \$1 \$2;
 #X connect 16 0 15 0;
 #X connect 17 0 16 0;
 #X connect 18 0 19 0;

@@ -7,9 +7,7 @@ import os
 import argparse
 import re
 
-# ---------------------------------------------------------------------------- #
-# files
-# ---------------------------------------------------------------------------- #
+# ============================================================================ #
 def is_pd_file(file, is_help_file):
     name, ex = os.path.splitext(file)
     first = ''
@@ -73,15 +71,10 @@ def path_norm(path):
         path = path[:-1]
     return path
 
-# ---------------------------------------------------------------------------- #
-# print
-# ---------------------------------------------------------------------------- #
 def split():
     print('='*80)
 
-# ---------------------------------------------------------------------------- #
-# convert pd file
-# ---------------------------------------------------------------------------- #
+# ============================================================================ #
 def pdfile2pdlist(filename):
     f = None
     try:
@@ -120,9 +113,6 @@ def pdlist2pdfile(filename, l):
     f.close()
     print("pdlist2pdfile: done.")
 
-# ---------------------------------------------------------------------------- #
-# operation with pdlist
-# ---------------------------------------------------------------------------- #
 def find_all_object(lpd, obj):
     res = []
     for i in range(len(lpd)):
@@ -174,9 +164,7 @@ def remove_canvas(lpd, st, en):
             res.append(lpd[i])
     return res
 
-# ---------------------------------------------------------------------------- #
-# sss
-# ---------------------------------------------------------------------------- #
+# ============================================================================ #
 def calc_coords(coord, pos):
     x  = pos // coord['obj_r'] # position
     y  = pos %  coord['obj_r']
@@ -364,9 +352,7 @@ def sss_treat_files(files_in, files_out, quitet):
             sss_one_file(files_in[i], files_out[i])
 
 
-# ---------------------------------------------------------------------------- #
-# input function
-# ---------------------------------------------------------------------------- #
+# ============================================================================ #
 def sss_input(args):
     msg_err = """usage: 
     -i input_file.pd -o output_file.pd
@@ -407,11 +393,11 @@ def sss_input(args):
 
     sss_treat_files(files_in, files_out, args.q)
 
-
-# ---------------------------------------------------------------------------- #
+# ============================================================================ #
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='pure data save state system script. version = %s' % (__version__))
+        description='pure data save state system script. version = %s' %
+        (__version__))
     parser.add_argument('-i', default='', help='input file')
     parser.add_argument('-o', default='', help='output file')
     parser.add_argument('-d', default='', help='directory')
