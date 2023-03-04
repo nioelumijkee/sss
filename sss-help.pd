@@ -1,11 +1,11 @@
-#N canvas 451 15 909 333 10;
+#N canvas 225 200 909 333 10;
 #X obj 235 55 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #c6ffc7 #000000 #000000 0 1;
 #X obj 265 202 sss_par;
 #X obj 265 228 sss_array;
-#X obj 400 18 example1 \$0 1;
-#X obj 400 92 example1 \$0 2;
-#X obj 400 166 example2 \$0 3;
 #X obj 232 73 sss_auto \$0;
-#X obj 400 240 example3 \$0 4;
 #X obj 14 14 sss \$0;
-#X connect 0 0 6 0;
+#X obj 400 18 example1 \$0 4;
+#X obj 400 92 example1 \$0 3;
+#X obj 400 166 example2 \$0 2;
+#X obj 400 240 example3 \$0 1;
+#X connect 0 0 3 0;
