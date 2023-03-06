@@ -1,5 +1,6 @@
 #include "m_pd.h"
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX_INS 64
 #define MAX_PAR 256
@@ -7,9 +8,11 @@
 #define MAX_BANK 8
 #define MAX_SNAP 8
 #define ALL_SNAP 64
+#define MAX_ABS_NAME 128
 #define EXT_PRO "pro"
 #define EXT_SNAP "snap"
 #define NEVER_FOCUS -1
+#define ENV_PD_SSS "PD_SSS"
 
 typedef struct _par
 {
@@ -161,6 +164,50 @@ void sss_init(t_sss *x)
     }
 }
 
+// abs_name (last .pd)
+void sss_abs_name(t_sss *x, t_symbol *s)
+{
+  int i;
+  char buf[MAX_ABS_NAME];
+  int l = strlen(s->s_name);
+  if (l < 4 || l > MAX_ABS_NAME-1)
+    {
+      x->abs_name = s_empty;
+      post("error: bad abs name: %s", s->s_name);
+      return;
+    }
+  if (s->s_name[l-3] != '.'||
+      s->s_name[l-2] != 'p'||
+      s->s_name[l-1] != 'd')
+    {
+      x->abs_name = s_empty;
+      post("error: bad abs name: %s", s->s_name);
+      return;
+    }
+  for(i=0; i<l-3; i++)
+    buf[i] = s->s_name[i];
+  buf[i] = '\0';
+  x->abs_name = gensym(buf);
+  post("abs_name: %s", x->abs_name->s_name);
+}
+
+// get env sss and make path
+void sss_path(t_sss *x)
+{
+  char *var = getenv(ENV_PD_SSS);
+  if (var != NULL)
+    {
+      x->path_sss = gensym(var);
+      post("path sss: %s", x->path_sss->s_name);
+    }
+  else
+    {
+      x->path_sss = s_empty;
+      post("error: env sss not set");
+      return;
+    }
+}
+
 void *sss_new(t_symbol *s, int ac, t_atom *av)
 {
   t_sss *x = (t_sss *)pd_new(sss_class);
@@ -180,5 +227,7 @@ void sss_setup(void)
 			   sizeof(t_sss),
 			   0, A_GIMME, 0);
   class_addmethod(sss_class,(t_method)sss_init,gensym("init"),0);
+  class_addmethod(sss_class,(t_method)sss_abs_name,gensym("abs_name"),A_SYMBOL,0);
+  class_addmethod(sss_class,(t_method)sss_path,gensym("path"),0);
   s_empty = gensym("");
 }
