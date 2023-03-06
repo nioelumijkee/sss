@@ -12,7 +12,7 @@ all_snap = 64
 # ============================================================================ #
 class SSSClass:
     def __init__(self, *creation):
-        self.print_split0()
+        print_split0()
         print('__init__')
         # var
         self.Localzero = int(creation[0])
@@ -41,6 +41,22 @@ class SSSClass:
         self.s_sss_snap_have_data = '%d-sss-snap-have-data' % (self.Localzero)
         return
     
+    def init(self):
+        print_split0()
+        print('init')
+        self.Ins = {} # clear older result !
+
+    def abs_name(self, s):
+        s = str(s)
+        i = s.find('.pd')
+        if  i == -1:
+            print('error: bad abs name: %s' % (s))
+        else:
+            s = s[:i]
+        self.Abs_name = s
+        print('abs_name: %s' % (self.Abs_name))
+        return
+
     # create and check path's
     def get_path(self):
         print('get_path')
@@ -69,14 +85,8 @@ class SSSClass:
             if not open_or_create(p): return
             else: self.Ins[i].Path_snap = p
 
-    def print_split0(self):
-        print('='*80)
-
-    def print_split1(self):
-        print('-'*80)
-
     def print_info(self):
-        self.print_split0()
+        print_split0()
         print('print_info')
         print('localzero: %s' % (self.Localzero))
         print('globalzero: %s' % (self.Globalzero))
@@ -91,7 +101,7 @@ class SSSClass:
         c = 0
         while c < kl:
             i = k[c]
-            self.print_split1()
+            print_split1()
             print('ins num: %d' % (i))
             print('ins name: %s' % (self.Ins[i].Name))
             print('ins dollarzero: %d' % (self.Ins[i].Localzero))
@@ -115,14 +125,7 @@ class SSSClass:
                 print('ar: %d %s' % (j.Num, j.Name))
                 kc += 1
             c += 1
-        self.print_split0()
-
-    def init(self):
-        self.print_split0()
-        print('init')
-        self.Ins = {} # clear older result !
-        pd.pd_send_bang(self.s_sss_get_info)
-        pd.pd_send_bang(self.s_sss_loop)
+        print_split0()
 
     def get_info_par_return(self, *args):
         Name              = str(args[0])
@@ -176,7 +179,6 @@ class SSSClass:
 
     def load_pro(self):
         print('load_pro')
-     
 
     def ins_sort(self):
         for i in self.Ins:
@@ -223,17 +225,6 @@ class SSSClass:
 
     def set_snap_have_data(self):
         pd.pd_send_list(self.s_sss_snap_have_data, self.Ins[self.Focus].Snap_have_data)
-
-    def abs_name(self, s):
-        s = str(s)
-        i = s.find('.pd')
-        if  i == -1:
-            print('error: bad abs name: %s' % (s))
-        else:
-            s = s[:i]
-        self.Abs_name = s
-        print('abs_name: %s' % (self.Abs_name))
-        return
 
     def focus(self, n):
         self.Focus = int(n)
@@ -321,7 +312,15 @@ class SSSClass:
         print('rnd: %s: %g: %d' % (Selector, Rng, I))
         return
 
+
+
 # ============================================================================ #
+def print_split0():
+    print('='*80)
+
+def print_split1():
+    print('-'*80)
+
 def open_or_create(p):
     try:
         if (os.path.isdir(p) and
