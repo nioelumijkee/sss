@@ -1,30 +1,32 @@
 import pd
 import os
 
+__version__ = '0.1'
 
 pro_ext = 'pro'
 snap_ext = 'snap'
+max_bank = 8
+max_snap = 8
+all_snap = 64
 
 # ============================================================================ #
 class SSSClass:
     def __init__(self, *creation):
+        self.print_split0()
         print('__init__')
-        # buf
-        self.r = []
         # var
         self.Localzero = int(creation[0])
         self.Globalzero = int(creation[1])
         self.Focus = -1
         self.Abs_name = ''
-        self.Path = ''
+        self.Path_SSS = ''
         self.Path_allpro = ''
         self.Path_allsnap = ''
         self.Path_pro = ''
         self.Pro_name = 'default'
         self.Ins = {}
         # send names global
-        self.s_sss_get_info_par = '%d-sss-get-info-par' % (self.Globalzero)
-        self.s_sss_get_info_array = '%d-sss-get-info-array' % (self.Globalzero)
+        self.s_sss_get_info = '%d-sss-get-info' % (self.Globalzero)
         self.s_sss_loop = '%d-sss-loop' % (self.Globalzero)
         self.s_sss_focus = '%d-sss-focus' % (self.Globalzero)
         # send names local
@@ -47,200 +49,180 @@ class SSSClass:
         except:
             print('error: env PD_SSS not set')
             return
-        if not open_or_create(p):
-            return
-        else:
-            self.Path = p
+        if not open_or_create(p): return
+        else: self.Path_SSS = p
 
-        p = self.Path + '/pro'
-        if not open_or_create(p):
-            return
-        else:
-            self.Path_allpro = p
+        p = self.Path_SSS + '/pro'
+        if not open_or_create(p): return
+        else: self.Path_allpro = p
 
-        p = self.Path + '/snap'
-        if not open_or_create(p):
-            return
-        else:
-            self.Path_allsnap = p
+        p = self.Path_SSS + '/snap'
+        if not open_or_create(p): return
+        else: self.Path_allsnap = p
 
-        p = self.Path + '/pro/' + self.Abs_name
-        if not open_or_create(p):
-            return
-        else:
-            self.Path_pro = p
+        p = self.Path_SSS + '/pro/' + self.Abs_name
+        if not open_or_create(p): return
+        else: self.Path_pro = p
 
         for i in self.Ins:
             p = self.Path_allsnap + '/' + self.Ins[i].Name
-            if not open_or_create(p):
-                return
-            else:
-                self.Ins[i].Path_snap = p
+            if not open_or_create(p): return
+            else: self.Ins[i].Path_snap = p
 
-    def load_pro(self):
-        print('load_pro')
-        
+    def print_split0(self):
+        print('='*80)
+
+    def print_split1(self):
+        print('-'*80)
 
     def print_info(self):
-        print('='*80)
+        self.print_split0()
         print('print_info')
-        print('Localzero: %s' % (self.Localzero))
-        print('Globalzero: %s' % (self.Globalzero))
-        print('Abs_name: %s' % (self.Abs_name))
-        print('Path: %s' % (self.Path))
-        print('Path_allpro: %s' % (self.Path_allpro))
-        print('Path_allsnap: %s' % (self.Path_allsnap))
-        print('Path_pro: %s' % (self.Path_pro))
-        print('Focus: %s' % (self.Focus))
-        for i in self.Ins:
-            print('-'*80)
-            print('Ins num: %d' % (i))
-            print('Ins name: %s' % (self.Ins[i].Name))
-            print('Ins dollarzero: %d' % (self.Ins[i].Localzero))
-            print('Ins globalzero: %d' % (self.Ins[i].Globalzero))
-            print('Ins path snap: %s' % (self.Ins[i].Path_snap))
-            for j in self.Ins[i].Par:
-                print('Par: %d %s %s %g %g %g' % (j.Num,
+        print('localzero: %s' % (self.Localzero))
+        print('globalzero: %s' % (self.Globalzero))
+        print('abs_name: %s' % (self.Abs_name))
+        print('path sss: %s' % (self.Path_SSS))
+        print('path allpro: %s' % (self.Path_allpro))
+        print('path allsnap: %s' % (self.Path_allsnap))
+        print('path pro: %s' % (self.Path_pro))
+        print('focus: %s' % (self.Focus))
+        kl = len(self.Ins.keys())
+        k = list(self.Ins.keys())
+        c = 0
+        while c < kl:
+            i = k[c]
+            self.print_split1()
+            print('ins num: %d' % (i))
+            print('ins name: %s' % (self.Ins[i].Name))
+            print('ins dollarzero: %d' % (self.Ins[i].Localzero))
+            print('ins globalzero: %d' % (self.Ins[i].Globalzero))
+            print('ins path snap: %s' % (self.Ins[i].Path_snap))
+            kp = len(self.Ins[i].Par)
+            kc = 0
+            while kc < kp:
+                j = self.Ins[i].Par[kc]
+                print('par: %d %s %s %g %g %g' % (j.Num,
                                                   j.Type,
                                                   j.Label,
                                                   j.Min,
                                                   j.Max,
                                                   j.Step))
-            for j in self.Ins[i].Ar:
-                print('Ar: %d %s' % (j.Num, j.Name))
+                kc += 1
+            kp = len(self.Ins[i].Ar)
+            kc = 0
+            while kc < kp:
+                j = self.Ins[i].Ar[kc]
+                print('ar: %d %s' % (j.Num, j.Name))
+                kc += 1
+            c += 1
+        self.print_split0()
 
     def init(self):
+        self.print_split0()
         print('init')
         self.Ins = {} # clear older result !
-        self.r = []
-        self.r.append(['send', self.s_sss_get_info_par])
-        self.r.append(['msg', 'bang'])
-        self.r.append(['send', self.s_sss_get_info_array])
-        self.r.append(['msg', 'bang'])
-        self.r.append(['send', self.s_sss_loop])
-        self.r.append(['msg', 'list', 'after-get-info'])
-        return (tuple(self.r))
+        pd.pd_send_bang(self.s_sss_get_info)
+        pd.pd_send_bang(self.s_sss_loop)
 
-    def list(self, *args):
-        Selector = args[0]
-        if Selector == 'get-info-par-return':
-            Name              = str(args[1])
-            Localzero         = int(args[2]) # $0 local
-            Globalzero        = int(args[3]) # $1 global
-            Num               = int(args[4]) # $2 number
-            Par_num           = int(args[5])
-            Par_type          = str(args[6])
-            Par_label         = str(args[7])
-            Par_min           = float(args[8])
-            Par_max           = float(args[9])
-            Par_step          = float(args[10])
-            if Num not in self.Ins:
-                self.Ins[Num] = SSSIns()
-                self.Ins[Num].Name = Name
-                self.Ins[Num].Localzero = Localzero
-                self.Ins[Num].Globalzero = Globalzero
-            if  self.Ins[Num].Localzero != Localzero:
-                print('error: not unique number ins! Name: %s Num: %d' %
-                        (Name, Num))
-                return
-            self.Ins[Num].Par.append(SSSPar())
-            self.Ins[Num].Par[-1].Num    = Par_num
-            self.Ins[Num].Par[-1].Type   = Par_type
-            self.Ins[Num].Par[-1].Label  = Par_label
-            self.Ins[Num].Par[-1].Min    = Par_min
-            self.Ins[Num].Par[-1].Max    = Par_max
-            self.Ins[Num].Par[-1].Step   = Par_step
+    def get_info_par_return(self, *args):
+        Name              = str(args[0])
+        Localzero         = int(args[1]) # $0 local
+        Globalzero        = int(args[2]) # $1 global
+        Num               = int(args[3]) # $2 number
+        Par_num           = int(args[4])
+        Par_type          = str(args[5])
+        Par_label         = str(args[6])
+        Par_min           = float(args[7])
+        Par_max           = float(args[8])
+        Par_step          = float(args[9])
+        if Num not in self.Ins:
+            self.Ins[Num] = SSSIns()
+            self.Ins[Num].Name = Name
+            self.Ins[Num].Localzero = Localzero
+            self.Ins[Num].Globalzero = Globalzero
+        if  self.Ins[Num].Localzero != Localzero:
+            print('error: not unique number ins! Name: %s Num: %d' %
+                  (Name, Num))
             return
-        elif Selector == 'get-info-array-return':
-            Name              = str(args[1])
-            Localzero         = int(args[2]) # $0 local
-            Globalzero        = int(args[3]) # $1 global
-            Num               = int(args[4]) # $2 number
-            Ar_num            = int(args[5])
-            Ar_name           = str(args[6])
-            if Num not in self.Ins:
-                self.Ins[Num] = SSSIns()
-                self.Ins[Num].Name = Name
-                self.Ins[Num].Localzero = Localzero
-                self.Ins[Num].Globalzero = Globalzero
-            if  self.Ins[Num].Localzero != Localzero:
-                print('error: not unique number ins! Name: %s Num: %d' %
-                        (Name, Num))
-                return
-            self.Ins[Num].Ar.append(SSSAr())
-            self.Ins[Num].Ar[-1].Num   = Ar_num
-            self.Ins[Num].Ar[-1].Name  = Ar_name
+        self.Ins[Num].Par.append(SSSPar())
+        self.Ins[Num].Par[-1].Num    = Par_num
+        self.Ins[Num].Par[-1].Type   = Par_type
+        self.Ins[Num].Par[-1].Label  = Par_label
+        self.Ins[Num].Par[-1].Min    = Par_min
+        self.Ins[Num].Par[-1].Max    = Par_max
+        self.Ins[Num].Par[-1].Step   = Par_step
+        return
+
+    def get_info_ar_return(self, *args):
+        Name              = str(args[0])
+        Localzero         = int(args[1]) # $0 local
+        Globalzero        = int(args[2]) # $1 global
+        Num               = int(args[3]) # $2 number
+        Ar_num            = int(args[4])
+        Ar_name           = str(args[5])
+        if Num not in self.Ins:
+            self.Ins[Num] = SSSIns()
+            self.Ins[Num].Name = Name
+            self.Ins[Num].Localzero = Localzero
+            self.Ins[Num].Globalzero = Globalzero
+        if  self.Ins[Num].Localzero != Localzero:
+            print('error: not unique number ins! Name: %s Num: %d' %
+                  (Name, Num))
             return
-        elif Selector == 'after-get-info':
-            self.r = []
-            for i in self.Ins:
-                  self.Ins[i].Par.sort()
-                  self.Ins[i].Ar.sort()
-            self.get_path()
-            self.load_pro()
-            self.focus(-1)
-            self.set_abs_name()
-            self.set_pro_name()
-            self.set_ins_name()
-            self.set_pro_path()
-            self.set_snap_path()
-            self.set_focus()
-            self.print_info()
-            return (tuple(self.r))
+        self.Ins[Num].Ar.append(SSSAr())
+        self.Ins[Num].Ar[-1].Num   = Ar_num
+        self.Ins[Num].Ar[-1].Name  = Ar_name
+        return
 
-    def rclear(self):
-        self.r = []
+    def load_pro(self):
+        print('load_pro')
+     
 
-    def res(self):
-        return (tuple(self.r))
+    def ins_sort(self):
+        for i in self.Ins:
+            self.Ins[i].sort()
 
     def set_abs_name(self):
-        self.r.append(['send', self.s_sss_cnv_abs_name])
-        self.r.append(['msg', 'label', self.Abs_name])
+        pd.pd_send_list(self.s_sss_cnv_abs_name, ['label', self.Abs_name])
 
     def set_pro_name(self):
-        self.r.append(['send', self.s_sss_cnv_pro_name])
-        self.r.append(['msg', 'label', self.Pro_name])
+        pd.pd_send_list(self.s_sss_cnv_pro_name, ['label', self.Pro_name])
 
     def set_ins_name(self):
         if self.Focus != -1:
-            self.r.append(['send', self.s_sss_cnv_ins_name])
-            self.r.append(['msg', 'label', '%s[%d]' % (
-                self.Ins[self.Focus].Name, self.Focus)])
+            pd.pd_send_list(self.s_sss_cnv_ins_name, [
+                'label',
+                '%s[%d]' % (self.Ins[self.Focus].Name, self.Focus)])
+        else:
+            pd.pd_send_list(self.s_sss_cnv_ins_name, [
+                'label',
+                '-----'])
 
     def set_pro_path(self):
-        self.r.append(['send', self.s_sss_pro_path])
-        self.r.append(['msg', self.Path_pro])
+        pd.pd_send_list(self.s_sss_pro_path, [self.Path_pro])
 
     def set_snap_path(self):
-        self.r.append(['send', self.s_sss_snap_path])
-        self.r.append(['msg', self.Ins[self.Focus].Path_snap])
+        pd.pd_send_list(self.s_sss_snap_path, [self.Path_snap])
 
     def set_focus(self):
-        self.r.append(['send', self.s_sss_focus])
-        self.r.append(['msg', self.Focus])
+        pd.pd_send_list(self.s_sss_focus, [self.Focus])
 
     def set_sel_bank(self):
-        self.r.append(['send', self.s_sss_sel_bank])
-        self.r.append(['msg', self.Ins[self.Focus].Sel_bank])
+        pd.pd_send_list(self.s_sss_sel_bank, [self.Ins[self.Focus].Sel_bank])
 
     def set_sel_snap(self):
-        bank = self.Ins[self.Focus].Sel_snap / 8
-        snap = self.Ins[self.Focus].Sel_snap % 8
+        bank = self.Ins[self.Focus].Sel_snap / max_snap
+        snap = self.Ins[self.Focus].Sel_snap % max_snap
         if bank == self.Ins[self.Focus].Sel_bank:
-            self.r.append(['send', self.s_sss_sel_snap])
-            self.r.append(['msg', snap])
+            pd.pd_send_list(self.s_sss_sel_snap, [snap])
         else:
-            self.r.append(['send', self.s_sss_sel_snap])
-            self.r.append(['msg', -1])
+            pd.pd_send_list(self.s_sss_sel_snap, [-1])
 
     def set_bank_have_data(self):
-        self.r.append(['send', self.s_sss_bank_have_data])
-        self.r.append(['msg'] + self.Ins[self.Focus].Bank_have_data)
+        pd.pd_send_list(self.s_sss_bank_have_data, self.Ins[self.Focus].Bank_have_data)
 
     def set_snap_have_data(self):
-        self.r.append(['send', self.s_sss_snap_have_data])
-        self.r.append(['msg'] + self.Ins[self.Focus].Snap_have_data)
+        pd.pd_send_list(self.s_sss_snap_have_data, self.Ins[self.Focus].Snap_have_data)
 
     def abs_name(self, s):
         s = str(s)
@@ -259,13 +241,13 @@ class SSSClass:
         if self.Focus == -1:
             if len(self.Ins) > 0:
                 # find first ins
-                min = 999999
+                min = 9999999
                 for i in self.Ins:
                     if i < min:
                         min = i
                 self.Focus = min
         # set bank
-        self.Ins[self.Focus].Sel_bank = self.Ins[self.Focus].Sel_snap / 8
+        self.Ins[self.Focus].Sel_bank = self.Ins[self.Focus].Sel_snap / max_snap
         print('focus: %d' % (self.Focus))
         return
 
@@ -273,10 +255,8 @@ class SSSClass:
         print('pro_save')
         return
 
-    def pro_save_as(self, filename):
-        filename = str(filename)
-        path, filename = os.path.split(filename)
-        filename, ext = os.path.splitext(filename)
+    def pro_save_as(self, p):
+        _, filename, _ = split_path(p)
         self.Pro_name = filename
         print('pro_save as: %s/%s.%s' % (self.Path_pro, self.Pro_name, pro_ext))
         return
@@ -285,20 +265,26 @@ class SSSClass:
         print('pro_open: %s' % str(filename))
         return
 
+    def snap_save(self):
+        print('snap_save')
+        return
+
+    def snap_save_as(self, p):
+        _, filename, _ = split_path(p)
+        p = '%s/%s.%s' % (self.Ins[self.Focus].Path_snap, filename, snap_ext)
+        print('snap_save as: %s/%s.%s' % (p))
+        return
+
+    def snap_open(self, filename):
+        print('snap_open: %s' % str(filename))
+        return
+
     def snap_copy(self):
         print('snap_copy')
         return
 
     def snap_paste(self):
         print('snap_paste')
-        return
-
-    def snap_save(self, filename):
-        print('snap_save: %s' % str(filename))
-        return
-
-    def snap_open(self, filename):
-        print('snap_open: %s' % str(filename))
         return
 
     def sel_bank(self, n):
@@ -312,7 +298,7 @@ class SSSClass:
         n = int(n)
         if n<0: n=0
         if n>7: n=7
-        self.Ins[self.Focus].Sel_snap = n + (self.Ins[self.Focus].Sel_bank * 8)
+        self.Ins[self.Focus].Sel_snap = n + (self.Ins[self.Focus].Sel_bank * max_snap)
         return
 
     def rnd(self, *args):
@@ -350,6 +336,12 @@ def open_or_create(p):
         print('error: open: %s' %  (p))
         return False
 
+def split_path(p):
+    p = str(p)
+    path, filename = os.path.split(p)
+    filename, ext = os.path.splitext(filename)
+    return (path, filename, ext)
+
 # ============================================================================ #
 class SSSIns:
     def __init__(self, *creation):
@@ -364,7 +356,9 @@ class SSSIns:
         self.Sel_snap = 0
         self.Bank_have_data = [0, 0, 0, 0, 0, 0, 0, 0]
         self.Snap_have_data = [0, 0, 0, 0, 0, 0, 0, 0]
-        return
+    def sort(self):
+        self.Par.sort()
+        self.Ar.sort()
 
 class SSSPar:
     def __init__(self, *creation):
@@ -375,10 +369,14 @@ class SSSPar:
         self.Max = 1.0
         self.Step = 0.01
         self.Value = []
-        return
 
 class SSSAr:
     def __init__(self, *creation):
         self.Num = -1
         self.Name = ''
-        return
+        self.Value = []
+
+class SSSSnap:
+    def __init__(self, *creation):
+        self.Par = []
+        self.Ar = []
