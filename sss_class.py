@@ -17,14 +17,6 @@ class SSSClass:
         # var
         self.Localzero = int(creation[0])
         self.Globalzero = int(creation[1])
-        self.Focus = -1
-        self.Abs_name = ''
-        self.Path_SSS = ''
-        self.Path_allpro = ''
-        self.Path_allsnap = ''
-        self.Path_pro = ''
-        self.Pro_name = 'default'
-        self.Ins = {}
         # send names global
         self.s_sss_get_info = '%d-sss-get-info' % (self.Globalzero)
         self.s_sss_loop = '%d-sss-loop' % (self.Globalzero)
@@ -44,6 +36,13 @@ class SSSClass:
     def init(self):
         print_split0()
         print('init')
+        self.Focus = -1
+        self.Abs_name = ''
+        self.Path_SSS = ''
+        self.Path_allpro = ''
+        self.Path_allsnap = ''
+        self.Path_pro = ''
+        self.Pro_name = 'default'
         self.Ins = {} # clear older result !
 
     def abs_name(self, s):
@@ -65,24 +64,25 @@ class SSSClass:
         except:
             print('error: env PD_SSS not set')
             return
-        if not open_or_create(p): return
+        print(p)
+        if not exist_or_create(p): return
         else: self.Path_SSS = p
 
         p = self.Path_SSS + '/pro'
-        if not open_or_create(p): return
+        if not exist_or_create(p): return
         else: self.Path_allpro = p
 
         p = self.Path_SSS + '/snap'
-        if not open_or_create(p): return
+        if not exist_or_create(p): return
         else: self.Path_allsnap = p
 
         p = self.Path_SSS + '/pro/' + self.Abs_name
-        if not open_or_create(p): return
+        if not exist_or_create(p): return
         else: self.Path_pro = p
 
         for i in self.Ins:
             p = self.Path_allsnap + '/' + self.Ins[i].Name
-            if not open_or_create(p): return
+            if not exist_or_create(p): return
             else: self.Ins[i].Path_snap = p
 
     def print_info(self):
@@ -96,35 +96,33 @@ class SSSClass:
         print('path allsnap: %s' % (self.Path_allsnap))
         print('path pro: %s' % (self.Path_pro))
         print('focus: %s' % (self.Focus))
-        kl = len(self.Ins.keys())
         k = list(self.Ins.keys())
-        c = 0
-        while c < kl:
-            i = k[c]
+        a = 0
+        while a < len(self.Ins.keys()):
+            i = k[a]
             print_split1()
             print('ins num: %d' % (i))
             print('ins name: %s' % (self.Ins[i].Name))
-            print('ins dollarzero: %d' % (self.Ins[i].Localzero))
+            print('ins localzero: %d' % (self.Ins[i].Localzero))
             print('ins globalzero: %d' % (self.Ins[i].Globalzero))
             print('ins path snap: %s' % (self.Ins[i].Path_snap))
-            kp = len(self.Ins[i].Par)
-            kc = 0
-            while kc < kp:
-                j = self.Ins[i].Par[kc]
-                print('par: %d %s %s %g %g %g' % (j.Num,
-                                                  j.Type,
-                                                  j.Label,
-                                                  j.Min,
-                                                  j.Max,
-                                                  j.Step))
-                kc += 1
-            kp = len(self.Ins[i].Ar)
-            kc = 0
-            while kc < kp:
-                j = self.Ins[i].Ar[kc]
-                print('ar: %d %s' % (j.Num, j.Name))
-                kc += 1
-            c += 1
+            b = 0
+            while b < len(self.Ins[i].Par):
+                print('par: %d %s %s %g %g %g %s %s' % (self.Ins[i].Par[b].Num,
+                                                  self.Ins[i].Par[b].Type,
+                                                  self.Ins[i].Par[b].Label,
+                                                  self.Ins[i].Par[b].Min,
+                                                  self.Ins[i].Par[b].Max,
+                                                  self.Ins[i].Par[b].Step,
+                                                  self.Ins[i].Par[b].Snd,
+                                                  self.Ins[i].Par[b].Rcv))
+                b += 1
+            b = 0
+            while b < len(self.Ins[i].Ar):
+                print('ar: %d %s' % (self.Ins[i].Ar[b].Num, 
+                                     self.Ins[i].Ar[b].Name))
+                b += 1
+            a += 1
         print_split0()
 
     def get_info_par_return(self, *args):
@@ -154,6 +152,8 @@ class SSSClass:
         self.Ins[Num].Par[-1].Min    = Par_min
         self.Ins[Num].Par[-1].Max    = Par_max
         self.Ins[Num].Par[-1].Step   = Par_step
+        self.Ins[Num].Par[-1].Snd    = '%d-sss-s-%d' % (Localzero, Par_num)
+        self.Ins[Num].Par[-1].Rcv    = '%d-sss-r-%d' % (Localzero, Par_num)
         return
 
     def get_info_ar_return(self, *args):
@@ -176,9 +176,6 @@ class SSSClass:
         self.Ins[Num].Ar[-1].Num   = Ar_num
         self.Ins[Num].Ar[-1].Name  = Ar_name
         return
-
-    def load_pro(self):
-        print('load_pro')
 
     def ins_sort(self):
         for i in self.Ins:
@@ -258,6 +255,9 @@ class SSSClass:
 
     def snap_save(self):
         print('snap_save')
+        for i in self.Ins:
+            print(i)
+        print('done')
         return
 
     def snap_save_as(self, p):
@@ -321,18 +321,18 @@ def print_split0():
 def print_split1():
     print('-'*80)
 
-def open_or_create(p):
+def exist_or_create(p):
+    if (os.path.isdir(p) and
+        os.access(p, os.R_OK) and
+        os.access(p, os.W_OK)):
+        print('rw ok: %s' % (p))
+        return True
     try:
-        if (os.path.isdir(p) and
-            os.access(p, os.R_OK) and
-            os.access(p, os.W_OK)):
-            return True
-        else:
-            os.mkdir(p)
-            print('create: %s' % (p))
-            return True
+        os.mkdir(p)
+        print('create: %s' % (p))
+        return True
     except:
-        print('error: open: %s' %  (p))
+        print('error create: %s' % (p))
         return False
 
 def split_path(p):
@@ -350,11 +350,11 @@ class SSSIns:
         self.Path_snap = ''
         self.Par = []
         self.Ar = []
-        #
         self.Sel_bank = 0
         self.Sel_snap = 0
         self.Bank_have_data = [0, 0, 0, 0, 0, 0, 0, 0]
         self.Snap_have_data = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.Have_data = [0 for i in range(all_snap)]
     def sort(self):
         self.Par.sort()
         self.Ar.sort()
@@ -367,15 +367,12 @@ class SSSPar:
         self.Min = 0.0
         self.Max = 1.0
         self.Step = 0.01
-        self.Value = []
+        self.Snd = ''
+        self.Rcv = ''
+        self.Data = [0 for i in range(all_snap)]
 
 class SSSAr:
     def __init__(self, *creation):
         self.Num = -1
         self.Name = ''
-        self.Value = []
-
-class SSSSnap:
-    def __init__(self, *creation):
-        self.Par = []
-        self.Ar = []
+        self.Data = [[] for i in range(all_snap)]

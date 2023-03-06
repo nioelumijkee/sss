@@ -1,3 +1,5 @@
 *.txt
 *.pyc
+*.o
+*.pd_linux
 TODO.md
