@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.5'
+__version__ = '0.6'
 
 import os
 import argparse
@@ -176,7 +176,6 @@ def calc_coords(coord, pos):
 def sss(lpd, ins_name):
     obj_cnv    = '__sss__'
     obj_par    = 'sss_par'
-    obj_array  = 'sss_array'
     coord = {'obj_ox' : 20,  # offset
              'obj_oy' : 20,
              'obj_ix' : 350, # inc
@@ -199,7 +198,6 @@ def sss(lpd, ins_name):
     all_hradio  = find_all_object(lpd, 'hradio')
     all_vradio  = find_all_object(lpd, 'vradio')
     all_n_knob  = find_all_object(lpd, 'n_knob')
-    all_arrays  = find_all_arrays(lpd)
     all_obj = (
         all_nbx +
         all_hsl +
@@ -207,8 +205,7 @@ def sss(lpd, ins_name):
         all_tgl +
         all_hradio +
         all_vradio +
-        all_n_knob +
-        all_arrays
+        all_n_knob
     )
 
     obj = []
@@ -219,7 +216,6 @@ def sss(lpd, ins_name):
 
     pos = 0
     obj_n = 0
-    arr_n = 0
     for i in all_obj:
         l = lpd[i]
         ox, oy  = calc_coords(coord, pos);   pos += 1
@@ -284,18 +280,6 @@ def sss(lpd, ins_name):
             l[14] = '\\\\\$0-sss-r-%d' % (obj_n)                          # FIX
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d n_knob %s %s %s 0' % ( # FIX
                 ox, oy, obj_par, ins_name, obj_n, l[15], l[8], l[9])      # FIX
-
-        # 1) ins name
-        # 2) $0
-        # 3) $1
-        # 4) $2
-        # 5) number array
-        # 6) name array
-
-        elif l[1] == 'array':
-            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d %s' % (
-                ox, oy, obj_array, ins_name, arr_n, l[2])
-            arr_n += 1
 
         if s != '':
             s = s.split()

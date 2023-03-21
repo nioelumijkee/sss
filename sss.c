@@ -9,7 +9,6 @@
 #define MAX_STRING 512
 #define MAX_INS 64
 #define MAX_PAR 256
-#define MAX_AR 64
 #define MAX_SNAP 32
 #define MAX_ABS_NAME 128
 #define ENV_PD_SSS "PD_SSS"
@@ -34,14 +33,6 @@ typedef struct _par
   t_float   data[MAX_SNAP];
 } t_par;
 
-typedef struct _ar
-{
-  int       ex;
-  t_symbol *name;
-  t_float  *data[MAX_SNAP];
-  int       len[MAX_SNAP];
-} t_ar;
-
 typedef struct _ins
 {
   int       ex;
@@ -52,7 +43,6 @@ typedef struct _ins
   int       sel_snap;
   char      have_data[MAX_SNAP];
   t_par     par[MAX_PAR];
-  t_ar      ar[MAX_AR];
 } t_ins;
 
 typedef struct _sss
@@ -84,8 +74,6 @@ typedef struct _sss
   t_ins    ins[MAX_INS];
   /* buf */
   t_float  buf_par[MAX_PAR];
-  t_float *buf_ar[MAX_AR];
-  int      buf_ar_l[MAX_AR];
 } t_sss;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -229,35 +217,11 @@ void sss_init(t_sss *x)
 	  for (int k=0; k<MAX_SNAP; k++)
 	    x->ins[i].par[j].data[k] = 0.0;
 	}
-      /* ar */
-      for (int j=0; j<MAX_AR; j++)
-	{
-	  x->ins[i].ar[j].ex = E_NO;
-	  x->ins[i].ar[j].name = s_empty;
-	  for (int k=0; k<MAX_SNAP; k++)
-	    {
-	      if (x->ins[i].ar[j].data[k] != NULL)
-		{
-		  free(x->ins[i].ar[j].data[k]);
-		  x->ins[i].ar[j].data[k] = NULL;
-		}
-	      x->ins[i].ar[j].len[k] = 0;
-	    }
-	}
     }
   /* buf */
   for (int j=0; j<MAX_PAR; j++)
     {
       x->buf_par[j] = 0.0;
-    }
-  for (int j=0; j<MAX_AR; j++)
-    {
-      if (x->buf_ar[j] != NULL)
-	{
-	  free(x->buf_ar[j]);
-	  x->buf_ar[j] = NULL;
-	}
-      x->buf_ar_l[j] = 0;
     }
 }
 
@@ -383,45 +347,6 @@ void sss_get_info_par_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
   NOUSE(s);
 }
 
-void sss_get_info_ar_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
-{
-  t_symbol *name  = atom_getsymbolarg(0, ac, av);
-  int localzero   = atom_getfloatarg(1, ac, av);
-  int globalzero  = atom_getfloatarg(2, ac, av);
-  int num         = atom_getfloatarg(3, ac, av);
-  int ar_num      = atom_getfloatarg(4, ac, av);
-  t_symbol *aname = atom_getsymbolarg(5, ac, av);
-
-  // clip
-  if (num < 0 || num >= MAX_INS)
-    {
-      post("error: bad ins num: %d", num);
-      return;
-    }
-  if (ar_num < 0 || ar_num >= MAX_AR)
-    {
-      post("error: bad ar num: %d", ar_num);
-      return;
-    }
-
-  // check localzero
-  if ((x->ins[num].localzero != 0) && (x->ins[num].localzero != localzero))
-    {
-      post("error: not unique num: %d", num);
-      return;
-    }
-
-  // fill data
-  x->ins[num].ex                 = E_YES;
-  x->ins[num].name               = name;
-  x->ins[num].localzero          = localzero;
-  x->ins[num].globalzero         = globalzero;
-  x->ins[num].ar[ar_num].ex      = E_YES;
-  x->ins[num].ar[ar_num].name    = aname;
-  
-  NOUSE(s);
-}
-
 void sss_test(t_sss *x)
 {
   for (int i=0; i<MAX_INS; i++)
@@ -473,15 +398,6 @@ void sss_info(t_sss *x)
 		       x->ins[i].par[j].step,
 		       x->ins[i].par[j].snd->s_name,
 		       x->ins[i].par[j].rcv->s_name);
-		}
-	    }
-	  for (int j=0; j<MAX_AR; j++)
-	    {
-	      if (x->ins[i].ar[j].ex == E_YES)
-		{
-		  post("ar: %d | %s", 
-		       j,
-		       x->ins[i].ar[j].name->s_name);
 		}
 	    }
 	}
@@ -676,8 +592,6 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_path,gensym("path"),0);
   class_addmethod(sss_class,(t_method)sss_get_info_par_return,
 		  gensym("get_info_par_return"), A_GIMME, 0);
-  class_addmethod(sss_class,(t_method)sss_get_info_ar_return,
-		  gensym("get_info_ar_return"), A_GIMME, 0);
   class_addmethod(sss_class,(t_method)sss_info,gensym("info"),0);
   class_addmethod(sss_class,(t_method)sss_set_abs_name,gensym("set_abs_name"),0);
   class_addmethod(sss_class,(t_method)sss_set_pro_name,gensym("set_pro_name"),0);
