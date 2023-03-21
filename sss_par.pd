@@ -1,4 +1,4 @@
-#N canvas 446 212 468 309 12;
+#N canvas 446 212 468 309 10;
 #X obj 61 35 r \$3-sss-get-info;
 #X obj 61 108 s \$3-sss-get-info-return;
 #X obj 61 88 list trim;
