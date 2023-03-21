@@ -5,6 +5,7 @@
 #include <dirent.h>   // DIR opendir
 #include <unistd.h> // access
 
+////////////////////////////////////////////////////////////////////////////////
 #define MAX_STRING 512
 #define MAX_INS 64
 #define MAX_PAR 256
@@ -16,14 +17,15 @@
 #define EXT_PRO "pro"
 #define EXT_SNAP "snap"
 #define NEVER_FOCUS -1
+#define ENV_PD_SSS "PD_SSS"
 #define E_NO 0
 #define E_YES 1
-#define ENV_PD_SSS "PD_SSS"
 #define E_OK 0
 #define E_ERR 1
 #define NOUSE(X) if(X){};
 #define DEFAULT_PRO_NAME "default"
 
+////////////////////////////////////////////////////////////////////////////////
 typedef struct _par
 {
   int       ex;
@@ -54,14 +56,13 @@ typedef struct _ins
   t_symbol *path_snap;
   int       sel_bank;
   int       sel_snap;
-  char      bank_have_data[MAX_BANK];
-  char      snap_have_data[MAX_SNAP];
+  char      have_data_bank[MAX_BANK];
+  char      have_data_snap[MAX_SNAP];
   char      have_data[ALL_SNAP];
   t_par     par[MAX_PAR];
   t_ar      ar[MAX_AR];
 } t_ins;
 
-static t_class *sss_class;
 typedef struct _sss
 {
   t_object x_obj;
@@ -97,9 +98,12 @@ typedef struct _sss
   int      buf_ar_l[MAX_AR];
 } t_sss;
 
+////////////////////////////////////////////////////////////////////////////////
+static t_class *sss_class;
 t_symbol *s_empty;
+t_symbol *s_label;
 
-
+////////////////////////////////////////////////////////////////////////////////
 // create dir
 int exorcr_dir(t_symbol *p)
 {
@@ -135,7 +139,21 @@ int exorcr_dir(t_symbol *p)
   return (E_OK);
 }
 
+// get par value
+t_float get_par(t_symbol *n)
+{
+  t_float *x_floatstar;
+  x_floatstar = value_get(n);
+  return(*x_floatstar);
+}
 
+// set par value
+void set_par(t_symbol *n, t_float f)
+{
+  if (n->s_thing) { pd_float(n->s_thing, f); }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void sss_init(t_sss *x)
 {
   char buf[MAX_STRING];
@@ -165,10 +183,6 @@ void sss_init(t_sss *x)
       x->ins[i].path_snap = s_empty;
       x->ins[i].sel_bank = 0;
       x->ins[i].sel_snap = 0;
-      for (int j=0; j<MAX_BANK; j++)
-	x->ins[i].bank_have_data[j] = 0;
-      for (int j=0; j<MAX_SNAP; j++)
-	x->ins[i].snap_have_data[j] = 0;
       for (int j=0; j<ALL_SNAP; j++)
 	x->ins[i].have_data[j] = 0;
       /* par */
@@ -422,7 +436,7 @@ void sss_set_abs_name(t_sss *x)
   t_atom a[1];
   SETSYMBOL(a, x->abs_name);
   if (x->s_cnv_abs_name->s_thing)
-    typedmess(x->s_cnv_abs_name->s_thing, gensym("label"), 1, a);
+    typedmess(x->s_cnv_abs_name->s_thing, s_label, 1, a);
 }
 
 void sss_set_pro_name(t_sss *x)
@@ -430,7 +444,7 @@ void sss_set_pro_name(t_sss *x)
   t_atom a[1];
   SETSYMBOL(a, x->pro_name);
   if (x->s_cnv_pro_name->s_thing)
-    typedmess(x->s_cnv_pro_name->s_thing, gensym("label"), 1, a);
+    typedmess(x->s_cnv_pro_name->s_thing, s_label, 1, a);
 }
 
 void sss_set_ins_name(t_sss *x)
@@ -441,7 +455,7 @@ void sss_set_ins_name(t_sss *x)
   else
     SETSYMBOL(a, gensym("---"));
   if (x->s_cnv_ins_name->s_thing)
-    typedmess(x->s_cnv_ins_name->s_thing, gensym("label"), 1, a);
+    typedmess(x->s_cnv_ins_name->s_thing, s_label, 1, a);
 }
 
 void sss_set_pro_path(t_sss *x)
@@ -483,6 +497,51 @@ void sss_set_sel_snap(t_sss *x)
     }
 }
 
+void sss_set_have_data(t_sss *x)
+{
+  // have data bank
+  for (int i=0; i<MAX_BANK; i++)
+    {
+      int have = 0;
+      for (int j=0; j<MAX_SNAP; j++)
+	{
+	  if (x->ins[x->focus].have_data[(i*8)+j] == 1)
+	    {
+	      have = 1;
+	      break;
+	    }
+	}
+      if (have)  x->ins[x->focus].have_data_bank[i] = 1;
+      else       x->ins[x->focus].have_data_bank[i] = 0;
+    }
+
+  // have data snap
+  for (int i=0; i<MAX_SNAP; i++)
+    {
+      int snap = (x->ins[x->focus].sel_bank * 8) + i;
+      if (x->ins[x->focus].have_data[snap] == 1) 
+	x->ins[x->focus].have_data_snap[i] = 1;
+      else 
+	x->ins[x->focus].have_data_snap[i] = 0;
+    }
+
+  t_atom b[MAX_BANK];
+  for(int i=0; i<MAX_BANK; i++)
+    {
+      SETFLOAT(b+i, (t_float)x->ins[x->focus].have_data_bank[i]);
+    }
+  if (x->s_bank_have_data->s_thing)
+    pd_list(x->s_bank_have_data->s_thing, &s_list, MAX_BANK, b);
+
+  t_atom s[MAX_SNAP];
+  for(int i=0; i<MAX_SNAP; i++)
+    {
+      SETFLOAT(s+i, (t_float)x->ins[x->focus].have_data_snap[i]);
+    }
+  if (x->s_snap_have_data->s_thing)
+    pd_list(x->s_snap_have_data->s_thing, &s_list, MAX_SNAP, s);
+}
+
 void sss_set_focus(t_sss *x)
 {
   for (int i=0; i<MAX_INS; i++)
@@ -519,6 +578,14 @@ void sss_sel_snap(t_sss *x, t_floatarg f)
 {
   f = (f<0)?0:(f>MAX_SNAP)?MAX_SNAP:f;
   x->ins[x->focus].sel_snap = (x->ins[x->focus].sel_bank * MAX_SNAP) + f;
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      if (x->ins[x->focus].par[j].ex == E_YES)
+	{
+	  set_par(x->ins[x->focus].par[j].rcv, 
+		  x->ins[x->focus].par[j].data[x->ins[x->focus].sel_snap]);
+	}
+    }
 }
 
 void sss_snap_copy(t_sss *x)
@@ -527,7 +594,7 @@ void sss_snap_copy(t_sss *x)
     {
       if (x->ins[x->focus].par[j].ex == E_YES)
 	{
-	  x->buf_par[j] = x->ins[x->focus].par[j].data[x->ins[x->focus].sel_snap];
+	  x->buf_par[j] = get_par(x->ins[x->focus].par[j].snd);
 	}
     }
 }
@@ -538,23 +605,47 @@ void sss_snap_paste(t_sss *x)
     {
       if (x->ins[x->focus].par[j].ex == E_YES)
 	{
-	  x->ins[x->focus].par[j].data[x->ins[x->focus].sel_snap] = x->buf_par[j];
+	  set_par(x->ins[x->focus].par[j].rcv, x->buf_par[j]);
 	}
     }
 }
 
 void sss_snap_save(t_sss *x)
 {
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      if (x->ins[x->focus].par[j].ex == E_YES)
+	{
+	  x->ins[x->focus].par[j].data[x->ins[x->focus].sel_snap] =
+	    get_par(x->ins[x->focus].par[j].snd);
+	}
+    }
+  x->ins[x->focus].have_data[x->ins[x->focus].sel_snap] = 1;
+  // save to file
+}
+
+void sss_snap_erase(t_sss *x)
+{
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      x->ins[x->focus].par[j].data[x->ins[x->focus].sel_snap] = 0.0;
+      set_par(x->ins[x->focus].par[j].rcv, 0.0);
+    }
+  x->ins[x->focus].have_data[x->ins[x->focus].sel_snap] = 0;
+  // erase file ?
 }
 
 void sss_snap_save_as(t_sss *x, t_symbol *s)
 {
+  int size;
 }
 
 void sss_snap_open(t_sss *x, t_symbol *s)
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// setup
 void *sss_new(t_symbol *s, int ac, t_atom *av)
 {
   t_sss *x = (t_sss *)pd_new(sss_class);
@@ -588,6 +679,7 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_set_bank,gensym("set_bank"),0);
   class_addmethod(sss_class,(t_method)sss_set_sel_bank,gensym("set_sel_bank"),0);
   class_addmethod(sss_class,(t_method)sss_set_sel_snap,gensym("set_sel_snap"),0);
+  class_addmethod(sss_class,(t_method)sss_set_have_data,gensym("set_have_data"),0);
   class_addmethod(sss_class,(t_method)sss_set_focus,gensym("set_focus"),0);
   class_addmethod(sss_class,(t_method)sss_focus,gensym("focus"),A_FLOAT,0);
   class_addmethod(sss_class,(t_method)sss_sel_bank,gensym("sel_bank"),A_FLOAT,0);
@@ -595,7 +687,9 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_snap_copy,gensym("snap_copy"),0);
   class_addmethod(sss_class,(t_method)sss_snap_paste,gensym("snap_paste"),0);
   class_addmethod(sss_class,(t_method)sss_snap_save,gensym("snap_save"),0);
+  class_addmethod(sss_class,(t_method)sss_snap_erase,gensym("snap_erase"),0);
   class_addmethod(sss_class,(t_method)sss_snap_save_as,gensym("snap_save_as"),A_SYMBOL,0);
   class_addmethod(sss_class,(t_method)sss_snap_open,gensym("snap_open"),A_SYMBOL,0);
   s_empty = gensym("");
+  s_label = gensym("label");
 }
