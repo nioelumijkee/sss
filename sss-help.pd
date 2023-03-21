@@ -1,4 +1,4 @@
-#N canvas 439 15 849 320 10;
+#N canvas 511 15 849 330 10;
 #X obj 185 38 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #c6ffc7 #000000 #000000 0 1;
 #X obj 209 129 sss_par;
 #X obj 209 155 sss_array;

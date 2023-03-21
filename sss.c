@@ -422,6 +422,23 @@ void sss_get_info_ar_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
   NOUSE(s);
 }
 
+void sss_test(t_sss *x)
+{
+  for (int i=0; i<MAX_INS; i++)
+    {
+      if (x->ins[i].ex == E_YES)
+	{
+	  for (int j=0; j<MAX_PAR; j++)
+	    {
+	      if (x->ins[i].par[j].ex == E_YES)
+		{
+		  get_par(x->ins[i].par[j].snd);
+		}
+	    }
+	}
+    }
+}
+
 void sss_info(t_sss *x)
 {
   post("localzero: %d", x->localzero);
@@ -588,7 +605,6 @@ void sss_snap_save(t_sss *x)
 	{
 	  x->ins[x->focus].par[j].data[x->ins[x->focus].sel_snap] =
 	    get_par(x->ins[x->focus].par[j].snd);
-	  /* post("save: ins=%d snap=%d n=%d v=%g",x->focus, x->ins[x->focus].sel_snap, j, get_par(x->ins[x->focus].par[j].snd)); */
 	}
     }
   x->ins[x->focus].have_data[x->ins[x->focus].sel_snap] = 1;
@@ -681,6 +697,7 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_snap_open,gensym("snap_open"),A_SYMBOL,0);
   class_addmethod(sss_class,(t_method)sss_snap_load,gensym("snap_load"),
 		  A_FLOAT, A_FLOAT,0);
+  class_addmethod(sss_class,(t_method)sss_test,gensym("test"),0);
   s_empty = gensym("");
   s_label = gensym("label");
 }
