@@ -217,11 +217,20 @@ void save_pro_to_file(t_sss *x)
   char bufs[MAX_STRING];
   FILE *fd;
   int size = 0;
+  int k;
   for(int i=0; i<MAX_INS; i++)
     {
       for(int j=0; j<MAX_SNAP; j++)
 	{
-	  buf[size] = x->ins[i].have_data[j];
+	  if (x->ins[i].ex == E_YES)
+	    {
+	      k = x->ins[i].have_data[j];
+	      if (j == x->ins[i].sel_snap)
+		k = 2;
+	    }
+	  else
+	    k = 0;
+	  buf[size] = k;
 	  size++;
 	}
     }
@@ -279,7 +288,7 @@ void open_file_pro(t_sss *x)
       for(int j=0; j<MAX_SNAP; j++)
 	{
 	  fread(&buf, sizeof(char), 1, fd);
-	  if (buf == 1)
+	  if (buf >= 1)
 	    {
 	      sprintf(bufs, "%s/%s/.%s.%d", 
 		      x->path_allsnap->s_name,
@@ -287,7 +296,8 @@ void open_file_pro(t_sss *x)
 		      x->pro_name->s_name,
 		      j);
 	      open_file_to_snap(&x->ins[i], j, (const char *)bufs);
-	      x->ins[i].have_data[j] = 1;
+	      if (buf == 2)
+		x->ins[i].sel_snap = j;
 	    }
 	}
     }
@@ -342,6 +352,23 @@ void sss_init(t_sss *x)
   for (int j=0; j<MAX_PAR; j++)
     {
       x->buf_par[j] = 0.0;
+    }
+}
+
+void sss_init_mem(t_sss *x)
+{
+  /* ins */
+  for (int i=0; i<MAX_INS; i++)
+    {
+      x->ins[i].sel_snap = 0;
+      for (int j=0; j<MAX_SNAP; j++)
+	x->ins[i].have_data[j] = 0;
+      /* par */
+      for (int j=0; j<MAX_PAR; j++)
+	{
+	  for (int k=0; k<MAX_SNAP; k++)
+	    x->ins[i].par[j].data[k] = 0.0;
+	}
     }
 }
 
@@ -638,6 +665,17 @@ void sss_snap_load(t_sss *x, t_floatarg ni, t_floatarg ns)
   set_snap(&x->ins[ins], snap);
 }
 
+void sss_snap_load_all_sel(t_sss *x)
+{
+  for (int i=0; i<MAX_INS; i++)
+    {
+      if (x->ins[i].ex == E_YES)
+	{
+	  set_snap(&x->ins[i], x->ins[i].sel_snap);
+	}
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // pro
 void sss_pro_save(t_sss *x)
@@ -647,14 +685,7 @@ void sss_pro_save(t_sss *x)
     {
       if (x->ins[i].ex == E_YES)
 	{
-	  int j = x->ins[i].sel_snap;
-	  for(int k=0; k<MAX_PAR; k++)
-	    {
-	      if (x->ins[i].par[k].ex == E_YES)
-		{
-		  x->ins[i].par[k].data[j] = get_par(x->ins[i].par[k].snd);
-		}
-	    }
+	  get_snap(&x->ins[i], x->ins[i].sel_snap);
 	}
     }
   save_pro_to_file(x);
@@ -668,14 +699,7 @@ void sss_pro_save_as(t_sss *x, t_symbol *s)
     {
       if (x->ins[i].ex == E_YES)
 	{
-	  int j = x->ins[i].sel_snap;
-	  for(int k=0; k<MAX_PAR; k++)
-	    {
-	      if (x->ins[i].par[k].ex == E_YES)
-		{
-		  x->ins[i].par[k].data[j] = get_par(x->ins[i].par[k].snd);
-		}
-	    }
+	  get_snap(&x->ins[i], x->ins[i].sel_snap);
 	}
     }
   save_pro_to_file(x);
@@ -707,10 +731,11 @@ void sss_setup(void)
 			sizeof(t_sss),
 			0, A_GIMME, 0);
   class_addmethod(sss_class,(t_method)sss_init,gensym("init"),0);
+  class_addmethod(sss_class,(t_method)sss_init_mem,gensym("init_mem"),0);
   class_addmethod(sss_class,(t_method)sss_abs_name,gensym("abs_name"),A_SYMBOL,0);
   class_addmethod(sss_class,(t_method)sss_path,gensym("path"),0);
   class_addmethod(sss_class,(t_method)sss_get_info_par_return,
-		  gensym("get_info_par_return"), A_GIMME, 0);
+		  gensym("get_info_par_return"),A_GIMME,0);
   class_addmethod(sss_class,(t_method)sss_info,gensym("info"),0);
   class_addmethod(sss_class,(t_method)sss_set_abs_name,gensym("set_abs_name"),0);
   class_addmethod(sss_class,(t_method)sss_set_pro_name,gensym("set_pro_name"),0);
@@ -728,8 +753,10 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_snap_erase,gensym("snap_erase"),0);
   class_addmethod(sss_class,(t_method)sss_snap_save_as,gensym("snap_save_as"),A_SYMBOL,0);
   class_addmethod(sss_class,(t_method)sss_snap_open,gensym("snap_open"),A_SYMBOL,0);
-  class_addmethod(sss_class,(t_method)sss_snap_load,gensym("snap_load"),
-		  A_FLOAT, A_FLOAT,0);
+  class_addmethod(sss_class,(t_method)sss_snap_load,
+		  gensym("snap_load"),A_FLOAT,A_FLOAT,0);
+  class_addmethod(sss_class,(t_method)sss_snap_load_all_sel,
+		  gensym("snap_load_all_sel"),0);
   class_addmethod(sss_class,(t_method)sss_pro_save,gensym("pro_save"),0);
   class_addmethod(sss_class,(t_method)sss_pro_save_as,gensym("pro_save_as"),A_SYMBOL,0);
   class_addmethod(sss_class,(t_method)sss_pro_open,gensym("pro_open"),A_SYMBOL,0);
