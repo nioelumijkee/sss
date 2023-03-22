@@ -75,6 +75,9 @@ typedef struct _sss
   t_ins    ins[MAX_INS];
   /* buf */
   t_float  buf_par[MAX_PAR];
+  /* randomize */
+  unsigned int seed;
+  t_float  rnd_amt;
 } t_sss;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,6 +86,13 @@ t_symbol *s_empty;
 t_symbol *s_label;
 
 ////////////////////////////////////////////////////////////////////////////////
+t_float rndf(unsigned int *seed)
+{
+  *seed = *seed * 1103515245;
+  *seed += 12345;
+  return ((t_float)(*seed * 0.000000000466));
+} 
+
 int exorcr_dir(t_symbol *p)
 {
   int err;
@@ -712,6 +722,130 @@ void sss_pro_open(t_sss *x, t_symbol *s)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// randomize
+void sss_rnd_amt(t_sss *x, t_floatarg f)
+{
+  x->rnd_amt = (f<0)?0:(f>1)?1:f;
+}
+
+void sss_rnd_nbx(t_sss *x)
+{
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      if (x->ins[x->focus].par[j].ex == E_YES)
+	{
+	  if (!strcmp(x->ins[x->focus].par[j].type->s_name, "nbx"))
+	    {
+	      t_float f = rndf(&x->seed);
+	      f = (f-0.5) * x->rnd_amt;
+	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
+	      f = dif * f;
+	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      cur = cur + f;
+	      if (cur < x->ins[x->focus].par[j].min)
+		cur = x->ins[x->focus].par[j].min;
+	      if (cur > x->ins[x->focus].par[j].max)
+		cur = x->ins[x->focus].par[j].max;
+	      set_par(x->ins[x->focus].par[j].rcv, cur);
+	    }
+	}
+    }
+}
+
+void sss_rnd_slider(t_sss *x)
+{
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      if (x->ins[x->focus].par[j].ex == E_YES)
+	{
+	  if ((!strcmp(x->ins[x->focus].par[j].type->s_name, "hsl")) ||
+	      (!strcmp(x->ins[x->focus].par[j].type->s_name, "vsl")))
+	    {
+	      t_float f = rndf(&x->seed);
+	      f = (f-0.5) * x->rnd_amt;
+	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
+	      f = dif * f;
+	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      cur = cur + f;
+	      if (cur < x->ins[x->focus].par[j].min)
+		cur = x->ins[x->focus].par[j].min;
+	      if (cur > x->ins[x->focus].par[j].max)
+		cur = x->ins[x->focus].par[j].max;
+	      set_par(x->ins[x->focus].par[j].rcv, cur);
+	    }
+	}
+    }
+}
+
+void sss_rnd_tgl(t_sss *x)
+{
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      if (x->ins[x->focus].par[j].ex == E_YES)
+	{
+	  if ((!strcmp(x->ins[x->focus].par[j].type->s_name, "tgl")))
+	    {
+	      t_float f = rndf(&x->seed);
+	      if (f>0.5)
+		f = 1;
+	      else
+		f = 0;
+	      set_par(x->ins[x->focus].par[j].rcv, f);
+	    }
+	}
+    }
+}
+
+void sss_rnd_radio(t_sss *x)
+{
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      if (x->ins[x->focus].par[j].ex == E_YES)
+	{
+	  if ((!strcmp(x->ins[x->focus].par[j].type->s_name, "hrd")) ||
+	      (!strcmp(x->ins[x->focus].par[j].type->s_name, "vrd")))
+	    {
+	      t_float f = rndf(&x->seed);
+	      f = (f-0.5) * x->rnd_amt;
+	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
+	      f = dif * f;
+	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      cur = cur + f;
+	      if (cur < x->ins[x->focus].par[j].min)
+		cur = x->ins[x->focus].par[j].min;
+	      if (cur > x->ins[x->focus].par[j].max)
+		cur = x->ins[x->focus].par[j].max;
+	      set_par(x->ins[x->focus].par[j].rcv, (int)cur);
+	    }
+	}
+    }
+}
+
+void sss_rnd_nknob(t_sss *x)
+{
+  for(int j=0; j<MAX_PAR; j++)
+    {
+      if (x->ins[x->focus].par[j].ex == E_YES)
+	{
+	  if (!strcmp(x->ins[x->focus].par[j].type->s_name, "n_knob"))
+	    {
+	      t_float f = rndf(&x->seed);
+	      f = (f-0.5) * x->rnd_amt;
+	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
+	      f = dif * f;
+	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      cur = cur + f;
+	      if (cur < x->ins[x->focus].par[j].min)
+		cur = x->ins[x->focus].par[j].min;
+	      if (cur > x->ins[x->focus].par[j].max)
+		cur = x->ins[x->focus].par[j].max;
+	      set_par(x->ins[x->focus].par[j].rcv, cur);
+	    }
+	}
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // setup
 void *sss_new(t_symbol *s, int ac, t_atom *av)
 {
@@ -719,6 +853,7 @@ void *sss_new(t_symbol *s, int ac, t_atom *av)
   outlet_new(&x->x_obj, 0);
   x->localzero = atom_getfloatarg(0, ac, av);
   x->globalzero = atom_getfloatarg(1, ac, av);
+  x->seed = (long)x;
   return (void *)x;
   NOUSE(s);
 }
@@ -761,6 +896,12 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_pro_save_as,gensym("pro_save_as"),A_SYMBOL,0);
   class_addmethod(sss_class,(t_method)sss_pro_open,gensym("pro_open"),A_SYMBOL,0);
   class_addmethod(sss_class,(t_method)sss_test,gensym("test"),0);
+  class_addmethod(sss_class,(t_method)sss_rnd_amt,gensym("rnd_amt"),A_FLOAT,0);
+  class_addmethod(sss_class,(t_method)sss_rnd_nbx,gensym("rnd_nbx"),0);
+  class_addmethod(sss_class,(t_method)sss_rnd_slider,gensym("rnd_slider"),0);
+  class_addmethod(sss_class,(t_method)sss_rnd_radio,gensym("rnd_radio"),0);
+  class_addmethod(sss_class,(t_method)sss_rnd_tgl,gensym("rnd_tgl"),0);
+  class_addmethod(sss_class,(t_method)sss_rnd_nknob,gensym("rnd_nknob"),0);
   s_empty = gensym("");
   s_label = gensym("label");
 }
