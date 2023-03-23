@@ -265,9 +265,10 @@ void save_pro_to_file(t_sss *x)
 	    {
 	      if (x->ins[i].have_data[j] == 1)
 		{
-		  sprintf(bufs, "%s/%s/.%s.%d", 
+		  sprintf(bufs, "%s/%s/.%s.%s.%d", 
 			  x->path_allsnap->s_name,
 			  x->ins[i].name->s_name,
+			  x->abs_name->s_name,
 			  x->pro_name->s_name,
 			  j);
 		  save_snap_to_file(&x->ins[i], j, (const char *)bufs);
@@ -300,9 +301,10 @@ void open_file_pro(t_sss *x)
 	  fread(&buf, sizeof(char), 1, fd);
 	  if (buf >= 1)
 	    {
-	      sprintf(bufs, "%s/%s/.%s.%d", 
+	      sprintf(bufs, "%s/%s/.%s.%s.%d", 
 		      x->path_allsnap->s_name,
 		      x->ins[i].name->s_name,
+		      x->abs_name->s_name,
 		      x->pro_name->s_name,
 		      j);
 	      open_file_to_snap(&x->ins[i], j, (const char *)bufs);

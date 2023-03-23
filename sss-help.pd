@@ -1,4 +1,4 @@
-#N canvas 245 194 602 332 10;
+#N canvas 675 204 602 332 10;
 #X obj 71 282 sss_par;
 #X obj 217 164 example2 \$0 1;
 #X obj 217 90 example1 \$0 34;
