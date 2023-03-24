@@ -275,11 +275,11 @@ def sss(lpd, ins_name):
                 ox, oy, obj_par, ins_name, obj_n, l[11], l[8])
 
         elif l[4] == 'n_knob':
-            l[21] = '0'                        
-            l[13] = '\\\\\$0-sss-s-%d' % (obj_n)                          # FIX
-            l[14] = '\\\\\$0-sss-r-%d' % (obj_n)                          # FIX
-            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d n_knob %s %s %s 0' % ( # FIX
-                ox, oy, obj_par, ins_name, obj_n, l[15], l[8], l[9])      # FIX
+            l[16] = '0'                        
+            l[17] = '\\\\\$0-sss-s-%d' % (obj_n)                          # FIX
+            l[18] = '\\\\\$0-sss-r-%d' % (obj_n)                          # FIX
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d n_knob %s %s %s %s' % ( # FIX
+                ox, oy, obj_par, ins_name, obj_n, l[19], l[11], l[12], l[13])      # FIX
 
         if s != '':
             s = s.split()
