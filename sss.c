@@ -265,12 +265,13 @@ void save_pro_to_file(t_sss *x)
 	    {
 	      if (x->ins[i].have_data[j] == 1)
 		{
-		  sprintf(bufs, "%s/%s/.%s.%s.%d", 
+		  sprintf(bufs, "%s/%s/.%s.%s.%d.%d", 
 			  x->path_allsnap->s_name,
 			  x->ins[i].name->s_name,
 			  x->abs_name->s_name,
 			  x->pro_name->s_name,
-			  j);
+			  i, // ins num
+			  j); // snap num
 		  save_snap_to_file(&x->ins[i], j, (const char *)bufs);
 		}
 	    }
@@ -301,12 +302,13 @@ void open_file_pro(t_sss *x)
 	  fread(&buf, sizeof(char), 1, fd);
 	  if (buf >= 1)
 	    {
-	      sprintf(bufs, "%s/%s/.%s.%s.%d", 
+	      sprintf(bufs, "%s/%s/.%s.%s.%d.%d", 
 		      x->path_allsnap->s_name,
 		      x->ins[i].name->s_name,
 		      x->abs_name->s_name,
 		      x->pro_name->s_name,
-		      j);
+		      i, // ins num
+		      j); // snap num
 	      open_file_to_snap(&x->ins[i], j, (const char *)bufs);
 	      if (buf == 2)
 		x->ins[i].sel_snap = j;
@@ -619,6 +621,14 @@ void sss_focus(t_sss *x, t_floatarg f)
 
 ////////////////////////////////////////////////////////////////////////////////
 // snap
+void sss_snap(t_sss *x, t_floatarg f1, t_floatarg f2)
+{
+  int ins  = (f1<0)?0:(f1>MAX_INS-1)?MAX_INS-1:f1;
+  int snap = (f2<0)?0:(f2>MAX_SNAP-1)?MAX_SNAP-1:f2;
+  x->ins[ins].sel_snap = snap;
+  set_snap(&x->ins[ins], snap);
+}
+
 void sss_sel_snap(t_sss *x, t_floatarg f)
 {
   x->ins[x->focus].sel_snap = (f<0)?0:(f>MAX_SNAP-1)?MAX_SNAP-1:f;
@@ -883,6 +893,7 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_set_have_data,gensym("set_have_data"),0);
   class_addmethod(sss_class,(t_method)sss_calc_focus,gensym("calc_focus"),0);
   class_addmethod(sss_class,(t_method)sss_focus,gensym("focus"),A_FLOAT,0);
+  class_addmethod(sss_class,(t_method)sss_snap,gensym("snap"),A_FLOAT,A_FLOAT,0);
   class_addmethod(sss_class,(t_method)sss_sel_snap,gensym("sel_snap"),A_FLOAT,0);
   class_addmethod(sss_class,(t_method)sss_snap_copy,gensym("snap_copy"),0);
   class_addmethod(sss_class,(t_method)sss_snap_paste,gensym("snap_paste"),0);

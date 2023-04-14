@@ -1,7 +1,7 @@
-#N canvas 500 15 860 523 10;
+#N canvas 250 105 860 523 10;
 #X obj 143 411 inlet;
 #N canvas 455 216 450 300 (subpatch) 0;
-#X obj 101 101 cnv 12 158 12 empty \$0-sss-cnv-abs-name i_s101-help 1 7 0 9 #bbbbbb #000000 0;
+#X obj 101 101 cnv 12 158 12 empty \$0-sss-cnv-abs-name sss-help 1 7 0 9 #bbbbbb #000000 0;
 #X coords 0 -1 1 1 160 14 2 100 100;
 #X restore 200 24 pd;
 #N canvas 455 216 450 300 (subpatch) 0;
@@ -9,7 +9,7 @@
 #X coords 0 -1 1 1 160 14 2 100 100;
 #X restore 200 38 pd;
 #N canvas 455 216 450 300 (subpatch) 0;
-#X obj 101 101 cnv 12 158 12 empty \$0-sss-cnv-ins-name (1)i_sa 1 7 0 9 #bbbbbb #000000 0;
+#X obj 101 101 cnv 12 158 12 empty \$0-sss-cnv-ins-name (34)example1 1 7 0 9 #bbbbbb #000000 0;
 #X coords 0 -1 1 1 160 14 2 100 100;
 #X restore 200 82 pd;
 #X obj 315 430 s \$0-to;
@@ -56,7 +56,7 @@
 #X f 17;
 #X obj 247 378 outlet;
 #X obj 91 417 s \$0-to;
-#X obj 100 100 tgl 20 0 \$0-s \$0-r-tgl-0 empty 0 -9 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 100 100 tgl 20 0 \$0-s \$0-r-tgl-0 empty 0 -9 0 10 #fcac44 #000000 #000000 0 1;
 #X obj 120 100 tgl 20 0 \$0-s \$0-r-tgl-1 empty 0 -9 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 140 100 tgl 20 0 \$0-s \$0-r-tgl-2 empty 0 -9 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 160 100 tgl 20 0 \$0-s \$0-r-tgl-3 empty 0 -9 0 10 #fcfcfc #000000 #000000 0 1;
@@ -303,7 +303,7 @@
 #X connect 23 0 20 0;
 #X coords 0 -1 1 1 160 44 2 100 100;
 #X restore 200 176 pd;
-#N canvas 0 329 674 404 (subpatch) 1;
+#N canvas 343 164 674 404 (subpatch) 0;
 #X obj 51 48 savestate;
 #X obj 102 102 bng 12 250 50 0 empty empty save 16 5 0 10 #fcfcfc #000000 #000000;
 #X obj 11 193 s \$0-to;
@@ -426,7 +426,6 @@
 #X connect 21 0 7 0;
 #X restore 182 239 pd split;
 #X msg 11 174 pro_save \, set_have_data;
-#X msg 228 266 pro_save_as \$1 \, set_pro_name \, set_have_dat, f 15;
 #X msg 392 231 init_mem \, pro_open \$1 \, snap_load_all_sel \, set_pro_name \, set_sel_snap \, set_have_data, f 23;
 #X msg 80 273 info;
 #X obj 102 116 bng 12 250 50 0 empty empty info 16 5 0 10 #fcfcfc #000000 #000000;
@@ -434,6 +433,7 @@
 #X obj 216 116 bng 12 250 50 0 empty empty init 16 5 0 10 #ff0400 #000000 #000000;
 #X obj 465 106 s \$0-to;
 #X msg 465 26 init_mem \, pro_open default \, snap_load_all_sel \, set_pro_name \, set_sel_snap \, set_have_data, f 23;
+#X msg 228 266 pro_save_as \$1 \, set_pro_name \, set_have_data, f 15;
 #X connect 0 1 1 0;
 #X connect 1 0 15 0;
 #X connect 3 0 7 0;
@@ -444,15 +444,15 @@
 #X connect 9 0 13 0;
 #X connect 11 0 9 0;
 #X connect 12 0 11 1;
-#X connect 13 1 17 0;
-#X connect 14 1 16 0;
+#X connect 13 1 16 0;
+#X connect 14 1 23 0;
 #X connect 15 0 2 0;
-#X connect 16 0 6 0;
-#X connect 17 0 10 0;
-#X connect 18 0 20 0;
-#X connect 19 0 18 0;
-#X connect 21 0 23 0;
-#X connect 23 0 22 0;
+#X connect 16 0 10 0;
+#X connect 17 0 19 0;
+#X connect 18 0 17 0;
+#X connect 20 0 22 0;
+#X connect 22 0 21 0;
+#X connect 23 0 6 0;
 #X coords 0 -1 1 1 160 30 2 100 100;
 #X restore 200 52 pd;
 #X msg 15 400 focus \$1 \, set_ins_name \, set_snap_path \, set_sel_snap \, set_have_data, f 15;
