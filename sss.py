@@ -236,7 +236,7 @@ def sss(lpd, ins_name):
             l[10] = '0'                   
             l[11] = '\$0-sss-s-%d' % (obj_n)  
             l[12] = '\$0-sss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d nbx %s %s %s 0.01' % (
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d nbx %s %s %s 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
 
         elif l[4] == 'hsl':
@@ -264,15 +264,17 @@ def sss(lpd, ins_name):
             l[7] = '0'                    
             l[9] = '\$0-sss-s-%d' % (obj_n)   
             l[10] = '\$0-sss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d hrd %s 0 %s 1' % (
-                ox, oy, obj_par, ins_name, obj_n, l[11], l[8])
+            rng = int(l[8]) - 1
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d hrd %s 0 %d 1' % (
+                ox, oy, obj_par, ins_name, obj_n, l[11], rng)
 
         elif l[4] == 'vradio':
             l[7] = '0'                    
             l[9] = '\$0-sss-s-%d' % (obj_n)   
             l[10] = '\$0-sss-r-%d' % (obj_n)  
-            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d vrd %s 0 %s 1' % (
-                ox, oy, obj_par, ins_name, obj_n, l[11], l[8])
+            rng = int(l[8]) - 1
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d vrd %s 0 %d 1' % (
+                ox, oy, obj_par, ins_name, obj_n, l[11], rng)
 
         elif l[4] == 'n_knob':
             l[16] = '0'                        
