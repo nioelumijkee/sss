@@ -1,5 +1,5 @@
 #N canvas 455 216 450 300 12;
-#X obj 101 101 tgl 12 0 \$0 \$0 empty 0 -10 0 12 #fcfcfc #fcfcfc #fcfcfc 0 1;
+#X obj 101 101 tgl 12 0 \$0-s \$0-r empty 0 -10 0 12 #fcfcfc #fcfcfc #fcfcfc 0 1;
 #X obj 101 118 bang;
 #X obj 101 30 sel \$2;
 #X msg 101 57 color 14 14 14;
@@ -7,12 +7,19 @@
 #X obj 101 141 i \$2;
 #X obj 102 6 r \$1-sss-focus;
 #X obj 101 168 s \$1-sss-focus;
+#X obj 263 132 outlet;
+#X msg 263 83 1;
+#X msg 298 84 0;
 #X connect 0 0 1 0;
 #X connect 1 0 5 0;
 #X connect 2 0 3 0;
+#X connect 2 0 9 0;
 #X connect 2 1 4 0;
+#X connect 2 1 10 0;
 #X connect 3 0 0 0;
 #X connect 4 0 0 0;
 #X connect 5 0 7 0;
 #X connect 6 0 2 0;
+#X connect 9 0 8 0;
+#X connect 10 0 8 0;
 #X coords 0 -1 1 1 14 14 2 100 100;

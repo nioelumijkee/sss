@@ -90,7 +90,13 @@ t_float rndf(unsigned int *seed)
 {
   *seed = *seed * 1103515245;
   *seed += 12345;
-  return ((t_float)(*seed * 0.000000000466));
+  t_float f = *seed * 0.000000000466;
+  if (f>1)
+    {
+      int i = f;
+      f = f -i;
+    }
+  return (f);
 } 
 
 int exorcr_dir(t_symbol *p)
@@ -798,7 +804,7 @@ void sss_rnd_tgl(t_sss *x)
 	  if ((!strcmp(x->ins[x->focus].par[j].type->s_name, "tgl")))
 	    {
 	      t_float f = rndf(&x->seed);
-	      if (f>0.5)
+	      if (f>0.65)
 		f = 1;
 	      else
 		f = 0;
