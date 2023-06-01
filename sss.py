@@ -115,29 +115,18 @@ def pdlist2pdfile(filename, l):
 
 def find_all_object(lpd, obj):
     res = []
-    for i in range(len(lpd)):
-        l = lpd[i]
-        if len(l) >= 5:
-            if l[0] == '#X' and l[1] == 'obj' and l[4] == obj:
+    for i in lpd:
+        if len(i) >= 5:
+            if i[0] == '#X' and i[1] == 'obj' and i[4] == obj:
                 res.append(i)
     return res
 
 def find_all_arrays(lpd):
     res = []
-    ar = 0
-    n = -1
-    for i in range(len(lpd)):
-        l = lpd[i]
-        if ar == 0 and l[0] == '#X' and l[1] == 'array':
-            if l[2].find('sss') != -1:
-                ar = 1
-                n = i
-        if ar == 1 and l[0] == '#A':
-            n = -1
-        if ar == 1 and l[0] == '#X' and l[1] == 'coords':
-            ar = 0
-            if n != -1:
-                res.append(n)
+    for i in lpd:
+        if len(i) >= 6:
+            if i[0] == '#X' and i[1] == 'array':
+                res.append(i)
     return res
 
 def find_canvas(lpd, cnv):
@@ -150,7 +139,6 @@ def find_canvas(lpd, cnv):
             if find == 0 and l[0] == '#N' and l[1] == 'canvas' and l[6] == cnv:
                 find = 1
                 st = i
-        
         if len(l) >= 6:
             if find == 1 and l[0] == '#X' and l[1] == 'restore' and l[5] == cnv:
                 en = i
@@ -176,6 +164,7 @@ def calc_coords(coord, pos):
 def sss(lpd, ins_name):
     obj_cnv    = '__sss__'
     obj_par    = 'sss_par'
+    obj_ar    = 'sss_ar'
     coord = {'obj_ox' : 20,  # offset
              'obj_oy' : 20,
              'obj_ix' : 350, # inc
@@ -187,7 +176,7 @@ def sss(lpd, ins_name):
     # find and remove old obj_cnv
     st, en = find_canvas(lpd, obj_cnv)
     if st != -1 and en != -1:
-        print('sss: find: old "%s" object' % (obj_cnv))
+        print('find old "%s" object' % (obj_cnv))
         lpd = remove_canvas(lpd, st, en)
 
     # find gui objects and arrays
@@ -198,6 +187,7 @@ def sss(lpd, ins_name):
     all_hradio  = find_all_object(lpd, 'hradio')
     all_vradio  = find_all_object(lpd, 'vradio')
     all_n_knob  = find_all_object(lpd, 'n_knob')
+    all_arr     = find_all_arrays(lpd)
     all_obj = (
         all_nbx +
         all_hsl +
@@ -205,7 +195,8 @@ def sss(lpd, ins_name):
         all_tgl +
         all_hradio +
         all_vradio +
-        all_n_knob
+        all_n_knob +
+        all_arr
     )
 
     obj = []
@@ -216,9 +207,10 @@ def sss(lpd, ins_name):
 
     pos = 0
     obj_n = 0
-    for i in all_obj:
-        l = lpd[i]
-        ox, oy  = calc_coords(coord, pos);   pos += 1
+    ar_n = 0
+    for l in all_obj:
+        ox, oy  = calc_coords(coord, pos)
+        pos += 1
         s = ''
        
         # 1) ins name
@@ -238,6 +230,7 @@ def sss(lpd, ins_name):
             l[12] = '\$0-sss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d nbx %s %s %s 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
+            obj_n += 1
 
         elif l[4] == 'hsl':
             l[10] = '0'                   
@@ -245,6 +238,7 @@ def sss(lpd, ins_name):
             l[12] = '\$0-sss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d hsl %s %s %s 0.01' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
+            obj_n += 1
 
         elif l[4] == 'vsl':
             l[10] = '0'                   
@@ -252,6 +246,7 @@ def sss(lpd, ins_name):
             l[12] = '\$0-sss-r-%d' % (obj_n)  
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d vsl %s %s %s 0.01' % (
                 ox, oy, obj_par, ins_name, obj_n, l[13], l[7], l[8])
+            obj_n += 1
 
         elif l[4] == 'tgl':
             l[6] = '0'                    
@@ -259,6 +254,7 @@ def sss(lpd, ins_name):
             l[8] = '\$0-sss-r-%d' % (obj_n)   
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d tgl %s 0 %s 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[9], l[18])
+            obj_n += 1
 
         elif l[4] == 'hradio':
             l[7] = '0'                    
@@ -267,6 +263,7 @@ def sss(lpd, ins_name):
             rng = int(l[8]) - 1
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d hrd %s 0 %d 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[11], rng)
+            obj_n += 1
 
         elif l[4] == 'vradio':
             l[7] = '0'                    
@@ -275,21 +272,27 @@ def sss(lpd, ins_name):
             rng = int(l[8]) - 1
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d vrd %s 0 %d 1' % (
                 ox, oy, obj_par, ins_name, obj_n, l[11], rng)
+            obj_n += 1
 
         elif l[4] == 'n_knob':
             l[16] = '0'                        
-            l[17] = '\\\\\$0-sss-s-%d' % (obj_n)                          # FIX
-            l[18] = '\\\\\$0-sss-r-%d' % (obj_n)                          # FIX
-            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d n_knob %s %s %s %s' % ( # FIX
-                ox, oy, obj_par, ins_name, obj_n, l[19], l[11], l[12], l[13])      # FIX
+            l[17] = '\\\\\$0-sss-s-%d' % (obj_n)
+            l[18] = '\\\\\$0-sss-r-%d' % (obj_n)
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d n_knob %s %s %s %s' % (
+                ox, oy, obj_par, ins_name, obj_n, l[19], l[11], l[12], l[13])
+            obj_n += 1
+
+        elif l[1] == 'array':
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d %s' % (
+                ox, oy, obj_ar, ins_name, ar_n, l[2])
+            ar_n += 1
 
         if s != '':
             s = s.split()
-            print('sss: add:', ' '.join(s[4:]))
+            print('add:', ' '.join(s[4:]))
             obj.append(s)
-            obj_n += 1
         else:
-            print("error: sss: ", l)
+            print('error:', l)
             exit()
 
     # canvas
@@ -306,7 +309,7 @@ def sss(lpd, ins_name):
         for i in obj:
             lpd.append(i)
 
-    print('sss: done')
+    print('done')
     return lpd
 
 
