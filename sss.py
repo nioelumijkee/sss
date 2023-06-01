@@ -125,7 +125,18 @@ def find_all_arrays(lpd):
     res = []
     for i in lpd:
         if len(i) >= 6:
-            if i[0] == '#X' and i[1] == 'array':
+            if i[0] == '#X' and i[1] == 'array' and i[2].find('sss') != -1:
+                res.append(i)
+    return res
+
+def find_all_tables(lpd):
+    res = []
+    for i in lpd:
+        if len(i) >= 6:
+            if (i[0] == '#X'
+                and i[1] == 'obj'
+                and  i[4] == 'table'
+                and i[5].find('sss') != -1):
                 res.append(i)
     return res
 
@@ -188,6 +199,7 @@ def sss(lpd, ins_name):
     all_vradio  = find_all_object(lpd, 'vradio')
     all_n_knob  = find_all_object(lpd, 'n_knob')
     all_arr     = find_all_arrays(lpd)
+    all_tab     = find_all_tables(lpd)
     all_obj = (
         all_nbx +
         all_hsl +
@@ -196,7 +208,8 @@ def sss(lpd, ins_name):
         all_hradio +
         all_vradio +
         all_n_knob +
-        all_arr
+        all_arr +
+        all_tab
     )
 
     obj = []
@@ -285,6 +298,11 @@ def sss(lpd, ins_name):
         elif l[1] == 'array':
             s = '#X obj %d %d %s %s \$0 \$1 \$2 %d %s' % (
                 ox, oy, obj_ar, ins_name, ar_n, l[2])
+            ar_n += 1
+
+        elif l[4] == 'table':
+            s = '#X obj %d %d %s %s \$0 \$1 \$2 %d %s' % (
+                ox, oy, obj_ar, ins_name, ar_n, l[5])
             ar_n += 1
 
         if s != '':
