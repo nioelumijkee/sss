@@ -7,6 +7,9 @@ import os
 import argparse
 import re
 
+max_par = 128
+max_ar = 32
+
 # ============================================================================ #
 def is_pd_file(file, is_help_file):
     name, ex = os.path.splitext(file)
@@ -236,6 +239,14 @@ def sss(lpd, ins_name):
         # 8) rng lower par
         # 9) rng upper par
         # 10) step par
+
+        if obj_n >= max_par:
+            print('error: max par = %d' % (max_par))
+            exit()
+
+        if ar_n >= max_ar:
+            print('error: max ar = %d' % (max_ar))
+            exit()
 
         if l[4] == 'nbx':
             l[10] = '0'                   
