@@ -1,0 +1,8 @@
+#N canvas 477 236 406 260 10;
+#X obj 61 35 r \$3-sss-get-info;
+#X obj 61 108 s \$3-sss-get-info-return;
+#X obj 61 88 list trim;
+#X obj 61 55 list prepend get_info_ar_return \$1 \$2 \$3 \$4 \$5 \$6, f 32;
+#X connect 0 0 3 0;
+#X connect 2 0 1 0;
+#X connect 3 0 2 0;

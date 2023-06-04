@@ -7,9 +7,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #define MAX_STRING 512
-#define SIZE_PRO 2048 // MAX_INS * MAX_SNAP
-#define MAX_INS 64
-#define MAX_PAR 256
+#define SIZE_PRO 8192 // (MAX_INS * MAX_SNAP) + (MAX_INS * MAX_AR)
+#define MAX_INS 128
+#define MAX_PAR 128
+#define MAX_AR 32
 #define MAX_SNAP 32
 #define MAX_ABS_NAME 128
 #define ENV_PD_SSS "PD_SSS"
@@ -19,6 +20,7 @@
 #define E_ERR 1
 #define NOUSE(X) if(X){};
 #define DEFAULT_PRO_NAME "default"
+#define STR_SPLIT "========================================"
 
 ////////////////////////////////////////////////////////////////////////////////
 typedef struct _par
@@ -34,6 +36,14 @@ typedef struct _par
   t_float   data[MAX_SNAP];
 } t_par;
 
+typedef struct _ar
+{
+  int       ex;
+  t_symbol *name;
+  int       size;
+  t_float   *data;
+} t_ar;
+
 typedef struct _ins
 {
   int       ex;
@@ -44,6 +54,7 @@ typedef struct _ins
   int       sel_snap;
   char      have_data[MAX_SNAP];
   t_par     par[MAX_PAR];
+  t_ar      ar[MAX_AR];
 } t_ins;
 
 typedef struct _sss
@@ -60,6 +71,7 @@ typedef struct _sss
   t_symbol *path_sss;
   t_symbol *path_allpro;
   t_symbol *path_allsnap;
+  t_symbol *path_allar;
   t_symbol *path_pro;
   /* send names global */
   t_symbol *s_focus;
@@ -86,6 +98,31 @@ t_symbol *s_empty;
 t_symbol *s_label;
 
 ////////////////////////////////////////////////////////////////////////////////
+int pd_open_array(t_symbol *s_arr,  // name
+                  t_word **w_arr,   // word
+                  t_garray **g_arr) // garray
+{
+  int len;
+  t_word *i_w_arr;
+  t_garray *i_g_arr;
+  if (!(i_g_arr = (t_garray *)pd_findbyclass(s_arr, garray_class)))
+    {
+      post("%s: no such array", s_arr->s_name);
+      len = -1;
+    }
+  else if (!garray_getfloatwords(i_g_arr, &len, &i_w_arr))
+    {
+      post("%s: bad template", s_arr->s_name);
+      len = -1;
+    }
+  else
+    {
+      *w_arr = i_w_arr;
+      *g_arr = i_g_arr;
+    }
+  return (len);
+}
+
 t_float rndf(unsigned int *seed)
 {
   *seed = *seed * 1103515245;
@@ -168,6 +205,40 @@ void save_snap_to_file(t_ins *ins, int snap, const char *filename)
   fclose(fd);
 }
 
+void save_ar_to_file(t_ins *ins, int n, const char *filename)
+{
+  float *buf = NULL;
+  FILE *fd;
+  t_word *w;
+  t_garray *g;
+  int size;
+  /* copy to buf */
+  size = pd_open_array(ins->ar[n].name, &w ,&g);
+  if (size <= 0)
+    {
+      post("error: open array: %s", ins->ar[n].name->s_name);
+      return;
+    }
+  buf = malloc(size * sizeof(float));
+  if (buf == NULL)
+    {
+      post("error: malloc: %s", ins->ar[n].name->s_name);
+      return;
+    }
+  for (int i=0; i<size; i++)
+    buf[i] = w[i].w_float;
+  /* file */
+  fd = fopen(filename, "wb");
+  if (fd == NULL)
+    {
+      post("error: open file: %s", filename);
+      return;
+    }
+  fwrite(buf, sizeof(float), size, fd);
+  fclose(fd);
+  free(buf);
+}
+
 void open_file_to_snap(t_ins *ins, int snap, const char *filename)
 {
   int size=0;
@@ -190,6 +261,49 @@ void open_file_to_snap(t_ins *ins, int snap, const char *filename)
     }
   fclose(fd);
   ins->have_data[snap] = 1;
+}
+
+void open_file_to_ar(t_ins *ins, int n, const char *filename)
+{
+  int file_size;
+  int size=0;
+  float buf;
+  FILE *fd;
+  t_word *w;
+  t_garray *g;
+  /* open file */
+  fd = fopen(filename, "rb");
+  if (fd == NULL)
+    {
+      post("error: open file: %s", filename);
+      return;
+    }
+  /* file size */
+  fseek(fd, 0, SEEK_END);
+  file_size = (int)ftell(fd) / sizeof(float);
+  fseek(fd, 0, SEEK_SET);
+  /* size ar */
+  size = pd_open_array(ins->ar[n].name, &w ,&g);
+  if (size <= 0)
+    {
+      post("error: open array: %s", ins->ar[n].name->s_name);
+      return;
+    }
+  garray_resize(g, file_size);
+  size = pd_open_array(ins->ar[n].name, &w ,&g);
+  if (size != file_size)
+    {
+      post("error: resize array: %s", ins->ar[n].name->s_name);
+      return;
+    }
+  // copy
+  for(int j=0; j<file_size; j++)
+    {
+      fread(&buf, sizeof(float), 1, fd);
+      w[j].w_float = (t_float)buf;
+    }
+  garray_redraw(g);
+  fclose(fd);
 }
 
 void get_snap(t_ins *ins, int snap)
@@ -227,13 +341,17 @@ void set_snap(t_ins *ins, int snap)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// save / open pro
 void save_pro_to_file(t_sss *x)
 {
   char buf[SIZE_PRO];
   char bufs[MAX_STRING];
   FILE *fd;
-  int size = 0;
+  /* save pro */
+  int pos = 0;
   int k;
+  /* snap */
   for(int i=0; i<MAX_INS; i++)
     {
       for(int j=0; j<MAX_SNAP; j++)
@@ -246,10 +364,29 @@ void save_pro_to_file(t_sss *x)
 	    }
 	  else
 	    k = 0;
-	  buf[size] = k;
-	  size++;
+	  buf[pos] = k;
+	  pos++;
 	}
     }
+  /* ar */
+  for(int i=0; i<MAX_INS; i++)
+    {
+      for(int j=0; j<MAX_AR; j++)
+	{
+	  if (x->ins[i].ex == E_YES)
+	    {
+	      if (x->ins[i].ar[j].ex == E_YES)
+		k = 1;
+	      else
+		k = 0;
+	    }
+	  else
+	    k = 0;
+	  buf[pos] = k;
+	  pos++;
+	}
+    }
+  /* save file */
   sprintf(bufs, "%s/%s/%s", 
 	  x->path_allpro->s_name,
 	  x->abs_name->s_name,
@@ -260,9 +397,9 @@ void save_pro_to_file(t_sss *x)
       post("error: open file: %s", bufs);
       return;
     }
-  fwrite(buf, sizeof(char), size, fd);
+  fwrite(buf, sizeof(char), SIZE_PRO, fd);
   fclose(fd);
-  // save all ins and snap
+  /* save snap */
   for(int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
@@ -279,6 +416,27 @@ void save_pro_to_file(t_sss *x)
 			  i, // ins num
 			  j); // snap num
 		  save_snap_to_file(&x->ins[i], j, (const char *)bufs);
+		}
+	    }
+	}
+    }
+  /* save ar */
+  for(int i=0; i<MAX_INS; i++)
+    {
+      if (x->ins[i].ex == E_YES)
+	{
+	  for(int j=0; j<MAX_AR; j++)
+	    {
+	      if (x->ins[i].ar[j].ex == E_YES)
+		{
+		  sprintf(bufs, "%s/%s/.%s.%s.%d.%d", 
+			  x->path_allar->s_name,
+			  x->ins[i].name->s_name,
+			  x->abs_name->s_name,
+			  x->pro_name->s_name,
+			  i, // ins num
+			  j); // ar num
+		  save_ar_to_file(&x->ins[i], j, (const char *)bufs);
 		}
 	    }
 	}
@@ -300,7 +458,7 @@ void open_file_pro(t_sss *x)
       post("error: open file: %s", bufs);
       return;
     }
-  // load all ins and snap
+  // load snap
   for(int i=0; i<MAX_INS; i++)
     {
       for(int j=0; j<MAX_SNAP; j++)
@@ -318,6 +476,25 @@ void open_file_pro(t_sss *x)
 	      open_file_to_snap(&x->ins[i], j, (const char *)bufs);
 	      if (buf == 2)
 		x->ins[i].sel_snap = j;
+	    }
+	}
+    }
+  // load ar
+  for(int i=0; i<MAX_INS; i++)
+    {
+      for(int j=0; j<MAX_AR; j++)
+	{
+	  fread(&buf, sizeof(char), 1, fd);
+	  if (buf >= 1)
+	    {
+	      sprintf(bufs, "%s/%s/.%s.%s.%d.%d", 
+		      x->path_allar->s_name,
+		      x->ins[i].name->s_name,
+		      x->abs_name->s_name,
+		      x->pro_name->s_name,
+		      i, // ins num
+		      j); // ar num
+	      open_file_to_ar(&x->ins[i], j, (const char *)bufs);
 	    }
 	}
     }
@@ -367,6 +544,15 @@ void sss_init(t_sss *x)
 	  for (int k=0; k<MAX_SNAP; k++)
 	    x->ins[i].par[j].data[k] = 0.0;
 	}
+      /* ar */
+      for (int j=0; j<MAX_AR; j++)
+	{
+	  x->ins[i].ar[j].ex = E_NO;
+	  x->ins[i].par[j].type = s_empty;
+	  x->ins[i].ar[j].name = s_empty;
+	  x->ins[i].ar[j].size = 0;
+	  x->ins[i].ar[j].data = NULL;
+	}
     }
   /* buf */
   for (int j=0; j<MAX_PAR; j++)
@@ -375,6 +561,7 @@ void sss_init(t_sss *x)
     }
 }
 
+// clear data. free data for arrays
 void sss_init_mem(t_sss *x)
 {
   /* ins */
@@ -426,6 +613,10 @@ void sss_path(t_sss *x)
   x->path_allsnap = gensym(buf);
   if (exorcr_dir(x->path_allsnap)!= E_OK) { return; }
 
+  sprintf(buf, "%s/ar", x->path_sss->s_name);
+  x->path_allar = gensym(buf);
+  if (exorcr_dir(x->path_allar)!= E_OK) { return; }
+
   sprintf(buf, "%s/pro/%s", x->path_sss->s_name, x->abs_name->s_name);
   x->path_pro = gensym(buf);
   if (exorcr_dir(x->path_pro) != E_OK) { return; }
@@ -439,27 +630,49 @@ void sss_path(t_sss *x)
 	  if (exorcr_dir(x->ins[i].path_snap) != E_OK) { return; }
 	}
     }
+
+  for (int i=0; i<MAX_INS; i++)
+    {
+      if (x->ins[i].ex == E_YES)
+	{
+	  int ex = 0;
+	  for (int j=0; j<MAX_AR; j++)
+	    {
+	      if (x->ins[i].ar[j].ex == E_YES)
+		{
+		  ex = 1;
+		  break;
+		}
+	    }
+	  if (ex)
+	    {
+	      sprintf(buf, "%s/ar/%s", x->path_sss->s_name, x->ins[i].name->s_name);
+	      x->ins[i].path_snap = gensym(buf);
+	      if (exorcr_dir(x->ins[i].path_snap) != E_OK) { return; }
+	    }
+	}
+    }
 }
 
 void sss_get_info_par_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
 {
   char buf[MAX_STRING];
 
-  t_symbol *name  = atom_getsymbolarg(0, ac, av);
-  int localzero   = atom_getfloatarg(1, ac, av);
-  int globalzero  = atom_getfloatarg(2, ac, av);
-  int num         = atom_getfloatarg(3, ac, av);
-  int par_num     = atom_getfloatarg(4, ac, av);
-  t_symbol *type  = atom_getsymbolarg(5, ac, av);
-  t_symbol *label = atom_getsymbolarg(6, ac, av);
-  t_float min     = atom_getfloatarg(7, ac, av);
-  t_float max     = atom_getfloatarg(8, ac, av);
-  t_float step    = atom_getfloatarg(9, ac, av);
+  t_symbol *ins_name = atom_getsymbolarg(0, ac, av);
+  int localzero      = atom_getfloatarg(1, ac, av);
+  int globalzero     = atom_getfloatarg(2, ac, av);
+  int ins_num        = atom_getfloatarg(3, ac, av);
+  int par_num        = atom_getfloatarg(4, ac, av);
+  t_symbol *type     = atom_getsymbolarg(5, ac, av);
+  t_symbol *label    = atom_getsymbolarg(6, ac, av);
+  t_float min        = atom_getfloatarg(7, ac, av);
+  t_float max        = atom_getfloatarg(8, ac, av);
+  t_float step       = atom_getfloatarg(9, ac, av);
 
   // clip
-  if (num < 0 || num >= MAX_INS)
+  if (ins_num < 0 || ins_num >= MAX_INS)
     {
-      post("error: bad ins num: %d", num);
+      post("error: bad ins num: %d", ins_num);
       return;
     }
   if (par_num < 0 || par_num >= MAX_PAR)
@@ -469,27 +682,66 @@ void sss_get_info_par_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
     }
 
   // check localzero
-  if ((x->ins[num].localzero != 0) && (x->ins[num].localzero != localzero))
+  if ((x->ins[ins_num].localzero != 0) && (x->ins[ins_num].localzero != localzero))
     {
-      post("error: not unique num: %d", num);
+      post("error: not unique num: %d", ins_num);
       return;
     }
 
   // fill data
-  x->ins[num].ex                   = E_YES;
-  x->ins[num].name                 = name;
-  x->ins[num].localzero            = localzero;
-  x->ins[num].globalzero           = globalzero;
-  x->ins[num].par[par_num].ex      = E_YES;
-  x->ins[num].par[par_num].type    = type;
-  x->ins[num].par[par_num].label   = label;
-  x->ins[num].par[par_num].min     = min;
-  x->ins[num].par[par_num].max     = max;
-  x->ins[num].par[par_num].step    = step;
+  x->ins[ins_num].ex                   = E_YES;
+  x->ins[ins_num].name                 = ins_name;
+  x->ins[ins_num].localzero            = localzero;
+  x->ins[ins_num].globalzero           = globalzero;
+  x->ins[ins_num].par[par_num].ex      = E_YES;
+  x->ins[ins_num].par[par_num].type    = type;
+  x->ins[ins_num].par[par_num].label   = label;
+  x->ins[ins_num].par[par_num].min     = min;
+  x->ins[ins_num].par[par_num].max     = max;
+  x->ins[ins_num].par[par_num].step    = step;
   sprintf(buf, "%d-sss-s-%d", localzero, par_num);
-  x->ins[num].par[par_num].snd = gensym(buf);
+  x->ins[ins_num].par[par_num].snd = gensym(buf);
   sprintf(buf, "%d-sss-r-%d", localzero, par_num);
-  x->ins[num].par[par_num].rcv = gensym(buf);
+  x->ins[ins_num].par[par_num].rcv = gensym(buf);
+  
+  NOUSE(s);
+}
+
+void sss_get_info_ar_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
+{
+  t_symbol *ins_name = atom_getsymbolarg(0, ac, av);
+  int localzero      = atom_getfloatarg(1, ac, av);
+  int globalzero     = atom_getfloatarg(2, ac, av);
+  int ins_num        = atom_getfloatarg(3, ac, av);
+  int ar_num         = atom_getfloatarg(4, ac, av);
+  t_symbol *ar_name  = atom_getsymbolarg(5, ac, av);
+
+  // clip
+  if (ins_num < 0 || ins_num >= MAX_INS)
+    {
+      post("error: bad ins num: %d", ins_num);
+      return;
+    }
+  if (ar_num < 0 || ar_num >= MAX_AR)
+    {
+      post("error: bad ar num: %d", ar_num);
+      return;
+    }
+
+  // check localzero
+  if ((x->ins[ins_num].localzero != 0) && (x->ins[ins_num].localzero != localzero))
+    {
+      post("error: not unique num: %d", ins_num);
+      return;
+    }
+
+  // fill data
+  x->ins[ins_num].ex                 = E_YES;
+  x->ins[ins_num].name               = ins_name;
+  x->ins[ins_num].localzero          = localzero;
+  x->ins[ins_num].globalzero         = globalzero;
+  x->ins[ins_num].ar[ar_num].ex      = E_YES;
+  x->ins[ins_num].ar[ar_num].name    = ar_name;
   
   NOUSE(s);
 }
@@ -513,6 +765,7 @@ void sss_test(t_sss *x)
 
 void sss_info(t_sss *x)
 {
+  post(STR_SPLIT);
   post("localzero: %d", x->localzero);
   post("globalzero: %d", x->globalzero);
   post("abs name: %s", x->abs_name->s_name);
@@ -520,12 +773,14 @@ void sss_info(t_sss *x)
   post("path sss: %s", x->path_sss->s_name);
   post("path all pro: %s", x->path_allpro->s_name);
   post("path all snap: %s", x->path_allsnap->s_name);
+  post("path all ar: %s", x->path_allar->s_name);
   post("path pro: %s", x->path_pro->s_name);
   post("focus: %d", x->focus);
   for (int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
 	{
+	  post(STR_SPLIT);
 	  post("ins num: %d", i);
 	  post("ins name: %s", x->ins[i].name->s_name);
 	  post("ins localzero: %d", x->ins[i].localzero);
@@ -545,6 +800,16 @@ void sss_info(t_sss *x)
 		       x->ins[i].par[j].step,
 		       x->ins[i].par[j].snd->s_name,
 		       x->ins[i].par[j].rcv->s_name);
+		}
+	    }
+	  for (int j=0; j<MAX_AR; j++)
+	    {
+	      if (x->ins[i].ar[j].ex == E_YES)
+		{
+		  post("ar: %d | %s | %d", 
+		       j,
+		       x->ins[i].ar[j].name->s_name,
+		       x->ins[i].ar[j].size);
 		}
 	    }
 	}
@@ -889,6 +1154,8 @@ void sss_setup(void)
   class_addmethod(sss_class,(t_method)sss_path,gensym("path"),0);
   class_addmethod(sss_class,(t_method)sss_get_info_par_return,
 		  gensym("get_info_par_return"),A_GIMME,0);
+  class_addmethod(sss_class,(t_method)sss_get_info_ar_return,
+		  gensym("get_info_ar_return"),A_GIMME,0);
   class_addmethod(sss_class,(t_method)sss_info,gensym("info"),0);
   class_addmethod(sss_class,(t_method)sss_set_abs_name,gensym("set_abs_name"),0);
   class_addmethod(sss_class,(t_method)sss_set_pro_name,gensym("set_pro_name"),0);
