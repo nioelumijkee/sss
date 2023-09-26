@@ -107,12 +107,12 @@ int pd_open_array(t_symbol *s_arr,  // name
   t_garray *i_g_arr;
   if (!(i_g_arr = (t_garray *)pd_findbyclass(s_arr, garray_class)))
     {
-      post("%s: no such array", s_arr->s_name);
+      post("sss: no such array: %s", s_arr->s_name);
       len = -1;
     }
   else if (!garray_getfloatwords(i_g_arr, &len, &i_w_arr))
     {
-      post("%s: bad template", s_arr->s_name);
+      post("sss: bad template: %s", s_arr->s_name);
       len = -1;
     }
   else
@@ -147,24 +147,24 @@ int exorcr_dir(t_symbol *p)
       err = mkdir(p->s_name, S_IRWXU);
       if (err != 0)
 	{
-	  post("error: mkdir or stat: %s", p->s_name);
+	  post("sss: error: mkdir or stat: %s", p->s_name);
 	  return (E_ERR);
 	}
       else
 	{
-	  post("mkdir: %s", p->s_name);
+	  post("sss: mkdir: %s", p->s_name);
 	  err = stat(p->s_name, &st);
 	}
     }
   if (!S_ISDIR(st.st_mode)) 
     {
-      post("error: not dir: %s", p->s_name);
+      post("sss: error: not dir: %s", p->s_name);
       return (E_ERR);
     }
   // access
   if (access(p->s_name, R_OK|W_OK|X_OK) < 0) 
     {
-      post("error: access to: %s", p->s_name);
+      post("sss: error: access to: %s", p->s_name);
       return (E_ERR);
     }
   return (E_OK);
@@ -198,7 +198,7 @@ void save_snap_to_file(t_ins *ins, int snap, const char *filename)
   fd = fopen(filename, "wb");
   if (fd == NULL)
     {
-      post("error: open file: %s", filename);
+      post("sss: error: open file: %s", filename);
       return;
     }
   fwrite(buf, sizeof(float), size, fd);
@@ -216,13 +216,13 @@ void save_ar_to_file(t_ins *ins, int n, const char *filename)
   size = pd_open_array(ins->ar[n].name, &w ,&g);
   if (size <= 0)
     {
-      post("error: open array: %s", ins->ar[n].name->s_name);
+      post("sss: error: open array: %s", ins->ar[n].name->s_name);
       return;
     }
   buf = malloc(size * sizeof(float));
   if (buf == NULL)
     {
-      post("error: malloc: %s", ins->ar[n].name->s_name);
+      post("sss: error: malloc: %s", ins->ar[n].name->s_name);
       return;
     }
   for (int i=0; i<size; i++)
@@ -231,7 +231,7 @@ void save_ar_to_file(t_ins *ins, int n, const char *filename)
   fd = fopen(filename, "wb");
   if (fd == NULL)
     {
-      post("error: open file: %s", filename);
+      post("sss: error: open file: %s", filename);
       return;
     }
   fwrite(buf, sizeof(float), size, fd);
@@ -247,7 +247,7 @@ void open_file_to_snap(t_ins *ins, int snap, const char *filename)
   fd = fopen(filename, "rb");
   if (fd == NULL)
     {
-      post("error: open file: %s", filename);
+      post("sss: error: open file: %s", filename);
       return;
     }
   for(int j=0; j<MAX_PAR; j++)
@@ -275,7 +275,7 @@ void open_file_to_ar(t_ins *ins, int n, const char *filename)
   fd = fopen(filename, "rb");
   if (fd == NULL)
     {
-      post("error: open file: %s", filename);
+      post("sss: error: open file: %s", filename);
       return;
     }
   /* file size */
@@ -286,14 +286,14 @@ void open_file_to_ar(t_ins *ins, int n, const char *filename)
   size = pd_open_array(ins->ar[n].name, &w ,&g);
   if (size <= 0)
     {
-      post("error: open array: %s", ins->ar[n].name->s_name);
+      post("sss: error: open array: %s", ins->ar[n].name->s_name);
       return;
     }
   garray_resize(g, file_size);
   size = pd_open_array(ins->ar[n].name, &w ,&g);
   if (size != file_size)
     {
-      post("error: resize array: %s", ins->ar[n].name->s_name);
+      post("sss: error: resize array: %s", ins->ar[n].name->s_name);
       return;
     }
   // copy
@@ -394,7 +394,7 @@ void save_pro_to_file(t_sss *x)
   fd = fopen(bufs, "wb");
   if (fd == NULL)
     {
-      post("error: open file: %s", bufs);
+      post("sss: error: open file: %s", bufs);
       return;
     }
   fwrite(buf, sizeof(char), SIZE_PRO, fd);
@@ -455,7 +455,7 @@ void open_file_pro(t_sss *x)
   fd = fopen(bufs, "rb");
   if (fd == NULL)
     {
-      post("error: open file: %s", bufs);
+      post("sss: error: open file: %s", bufs);
       return;
     }
   // load snap
@@ -598,7 +598,7 @@ void sss_path(t_sss *x)
   else
     {
       x->path_sss = s_empty;
-      post("error: env %s is not set", ENV_PD_SSS);
+      post("sss: error: env %s is not set", ENV_PD_SSS);
       return;
     }
 
@@ -672,19 +672,19 @@ void sss_get_info_par_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
   // clip
   if (ins_num < 0 || ins_num >= MAX_INS)
     {
-      post("error: bad ins num: %d", ins_num);
+      post("sss: error: bad ins num: %d", ins_num);
       return;
     }
   if (par_num < 0 || par_num >= MAX_PAR)
     {
-      post("error: bad par num: %d", par_num);
+      post("sss: error: bad par num: %d", par_num);
       return;
     }
 
   // check localzero
   if ((x->ins[ins_num].localzero != 0) && (x->ins[ins_num].localzero != localzero))
     {
-      post("error: not unique num: %d", ins_num);
+      post("sss: error: not unique num: %d", ins_num);
       return;
     }
 
@@ -719,19 +719,19 @@ void sss_get_info_ar_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
   // clip
   if (ins_num < 0 || ins_num >= MAX_INS)
     {
-      post("error: bad ins num: %d", ins_num);
+      post("sss: error: bad ins num: %d", ins_num);
       return;
     }
   if (ar_num < 0 || ar_num >= MAX_AR)
     {
-      post("error: bad ar num: %d", ar_num);
+      post("sss: error: bad ar num: %d", ar_num);
       return;
     }
 
   // check localzero
   if ((x->ins[ins_num].localzero != 0) && (x->ins[ins_num].localzero != localzero))
     {
-      post("error: not unique num: %d", ins_num);
+      post("sss: error: not unique num: %d", ins_num);
       return;
     }
 
@@ -766,32 +766,32 @@ void sss_test(t_sss *x)
 void sss_info(t_sss *x)
 {
   post(STR_SPLIT);
-  post("localzero: %d", x->localzero);
-  post("globalzero: %d", x->globalzero);
-  post("abs name: %s", x->abs_name->s_name);
-  post("pro name: %s", x->pro_name->s_name);
-  post("path sss: %s", x->path_sss->s_name);
-  post("path all pro: %s", x->path_allpro->s_name);
-  post("path all snap: %s", x->path_allsnap->s_name);
-  post("path all ar: %s", x->path_allar->s_name);
-  post("path pro: %s", x->path_pro->s_name);
-  post("focus: %d", x->focus);
+  post("sss: localzero: %d", x->localzero);
+  post("sss: globalzero: %d", x->globalzero);
+  post("sss: abs name: %s", x->abs_name->s_name);
+  post("sss: pro name: %s", x->pro_name->s_name);
+  post("sss: path sss: %s", x->path_sss->s_name);
+  post("sss: path all pro: %s", x->path_allpro->s_name);
+  post("sss: path all snap: %s", x->path_allsnap->s_name);
+  post("sss: path all ar: %s", x->path_allar->s_name);
+  post("sss: path pro: %s", x->path_pro->s_name);
+  post("sss: focus: %d", x->focus);
   for (int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
 	{
 	  post(STR_SPLIT);
-	  post("ins num: %d", i);
-	  post("ins name: %s", x->ins[i].name->s_name);
-	  post("ins localzero: %d", x->ins[i].localzero);
-	  post("ins globalzero: %d", x->ins[i].globalzero);
-	  post("ins path snap: %s", x->ins[i].path_snap->s_name);
-	  post("ins sel snap: %d", x->ins[i].sel_snap);
+	  post("sss: ins num: %d", i);
+	  post("sss: ins name: %s", x->ins[i].name->s_name);
+	  post("sss: ins localzero: %d", x->ins[i].localzero);
+	  post("sss: ins globalzero: %d", x->ins[i].globalzero);
+	  post("sss: ins path snap: %s", x->ins[i].path_snap->s_name);
+	  post("sss: ins sel snap: %d", x->ins[i].sel_snap);
 	  for (int j=0; j<MAX_PAR; j++)
 	    {
 	      if (x->ins[i].par[j].ex == E_YES)
 		{
-		  post("par: %d | %s %s | %g %g %g | %s %s", 
+		  post("sss: par: %d | %s %s | %g %g %g | %s %s", 
 		       j,
 		       x->ins[i].par[j].type->s_name,
 		       x->ins[i].par[j].label->s_name,
@@ -806,7 +806,7 @@ void sss_info(t_sss *x)
 	    {
 	      if (x->ins[i].ar[j].ex == E_YES)
 		{
-		  post("ar: %d | %s | %d", 
+		  post("sss: ar: %d | %s | %d", 
 		       j,
 		       x->ins[i].ar[j].name->s_name,
 		       x->ins[i].ar[j].size);
