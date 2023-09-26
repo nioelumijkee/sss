@@ -22,4 +22,9 @@
 #X obj 20 236 sss_par example2 \$0 \$1 \$2 9 vrd empty 0 3 1;
 #X restore 20 20 pd __sss__;
 #X obj 436 100 sss_focus \$1 \$2;
+#X obj 403 41 bng 15 250 50 0 empty empty init 17 7 0 10 #ffffff #00ff04 #000000;
+#X obj 403 20 r \$1-sss-init-ins;
+#X obj 283 37 print INIT INS;
+#X connect 13 0 12 0;
+#X connect 13 0 14 0;
 #X coords 0 -1 1 1 350 72 1 100 100;

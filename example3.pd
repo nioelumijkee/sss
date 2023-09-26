@@ -1,4 +1,4 @@
-#N canvas 0 15 604 359 10;
+#N canvas 378 187 604 359 10;
 #X obj 102 128 nbx 5 14 0 100 0 0 \$0-sss-s-0 \$0-sss-r-0 par_0 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
 #X obj 102 156 nbx 5 14 0 100 0 0 \$0-sss-s-1 \$0-sss-r-1 par_1 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
 #X obj 156 128 nbx 5 14 0 100 0 0 \$0-sss-s-2 \$0-sss-r-2 par_2 0 -8 0 10 #bbbbbb #000000 #000000 0 256;
@@ -33,6 +33,9 @@
 #X obj 373 211 pack s \$0;
 #X obj 373 192 openpanel;
 #X msg 373 230 read -resize \$1 \$2-sss-1;
+#X obj 261 327 bng 15 250 50 0 empty empty init 17 7 0 10 #ffffff #00ff04 #000000;
+#X obj 261 306 r \$1-sss-init-ins;
+#X obj 141 323 print INIT INS;
 #X connect 9 0 15 0;
 #X connect 11 0 14 0;
 #X connect 13 0 18 0;
@@ -41,4 +44,6 @@
 #X connect 17 0 19 0;
 #X connect 18 0 17 0;
 #X connect 19 0 16 0;
+#X connect 21 0 20 0;
+#X connect 21 0 22 0;
 #X coords 0 -1 1 1 350 72 1 100 100;

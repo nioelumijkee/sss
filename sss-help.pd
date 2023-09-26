@@ -55,6 +55,8 @@
 #X restore 640 352 pd;
 #X obj 916 318 s \$0-cnv1;
 #X text 356 20 you need to set a variable PD_SSS in env.;
+#X obj 164 408 sss_focus;
+#X text 188 407 sss_focus;
 #X connect 6 0 11 0;
 #X connect 7 0 11 1;
 #X connect 8 0 11 1;
