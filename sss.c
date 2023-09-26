@@ -9,7 +9,7 @@
 #define MAX_STRING 512
 #define SIZE_PRO 8192 // (MAX_INS * MAX_SNAP) + (MAX_INS * MAX_AR)
 #define MAX_INS 128
-#define MAX_PAR 128
+#define MAX_PAR 256
 #define MAX_AR 32
 #define MAX_SNAP 32
 #define MAX_ABS_NAME 128
@@ -21,6 +21,8 @@
 #define NOUSE(X) if(X){};
 #define DEFAULT_PRO_NAME "default"
 #define STR_SPLIT "========================================"
+/* #define DEBUG(x) x */
+#define DEBUG(x)
 
 ////////////////////////////////////////////////////////////////////////////////
 typedef struct _par
@@ -98,10 +100,11 @@ t_symbol *s_empty;
 t_symbol *s_label;
 
 ////////////////////////////////////////////////////////////////////////////////
-int pd_open_array(t_symbol *s_arr,  // name
+int sss_pd_open_array(t_symbol *s_arr,  // name
                   t_word **w_arr,   // word
                   t_garray **g_arr) // garray
 {
+  DEBUG(post("sss: debug: sss_pd_open_array: %s", s_arr->s_name));
   int len;
   t_word *i_w_arr;
   t_garray *i_g_arr;
@@ -123,7 +126,7 @@ int pd_open_array(t_symbol *s_arr,  // name
   return (len);
 }
 
-t_float rndf(unsigned int *seed)
+t_float sss_rndf(unsigned int *seed)
 {
   *seed = *seed * 1103515245;
   *seed += 12345;
@@ -136,8 +139,9 @@ t_float rndf(unsigned int *seed)
   return (f);
 } 
 
-int exorcr_dir(t_symbol *p)
+int sss_exorcr_dir(t_symbol *p)
 {
+  DEBUG(post("sss: debug: sss_exorcr_dir: %s", p->s_name));
   int err;
   struct stat st;
   err = stat(p->s_name, &st);
@@ -170,20 +174,22 @@ int exorcr_dir(t_symbol *p)
   return (E_OK);
 }
 
-t_float get_par(t_symbol *n)
+t_float sss_get_par(t_symbol *n)
 {
   t_float *x_floatstar;
   x_floatstar = value_get(n);
   return(*x_floatstar);
 }
 
-void set_par(t_symbol *n, t_float f)
+void sss_set_par(t_symbol *n, t_float f)
 {
   if (n->s_thing) { pd_float(n->s_thing, f); }
 }
 
 void save_snap_to_file(t_ins *ins, int snap, const char *filename)
 {
+  DEBUG(post("sss: debug: save_snap_to_file: ins: %s snap: %d file: %s",
+	     ins->name->s_name, snap, filename));
   int size=0;
   float buf[MAX_PAR];
   FILE *fd;
@@ -205,15 +211,17 @@ void save_snap_to_file(t_ins *ins, int snap, const char *filename)
   fclose(fd);
 }
 
-void save_ar_to_file(t_ins *ins, int n, const char *filename)
+void sss_save_ar_to_file(t_ins *ins, int n, const char *filename)
 {
+  DEBUG(post("sss: debug: sss_save_ar_to_file: ins: %s n: %d file: %s",
+	     ins->name->s_name, n, filename));
   float *buf = NULL;
   FILE *fd;
   t_word *w;
   t_garray *g;
   int size;
   /* copy to buf */
-  size = pd_open_array(ins->ar[n].name, &w ,&g);
+  size = sss_pd_open_array(ins->ar[n].name, &w ,&g);
   if (size <= 0)
     {
       post("sss: error: open array: %s", ins->ar[n].name->s_name);
@@ -239,8 +247,10 @@ void save_ar_to_file(t_ins *ins, int n, const char *filename)
   free(buf);
 }
 
-void open_file_to_snap(t_ins *ins, int snap, const char *filename)
+void sss_open_file_to_snap(t_ins *ins, int snap, const char *filename)
 {
+  DEBUG(post("sss: debug: sss_open_file_to_snap: ins: %s snap: %d file: %s",
+	     ins->name->s_name, snap, filename));
   int size=0;
   float buf;
   FILE *fd;
@@ -263,8 +273,10 @@ void open_file_to_snap(t_ins *ins, int snap, const char *filename)
   ins->have_data[snap] = 1;
 }
 
-void open_file_to_ar(t_ins *ins, int n, const char *filename)
+void sss_open_file_to_ar(t_ins *ins, int n, const char *filename)
 {
+  DEBUG(post("sss: debug: sss_open_file_to_ar: ins: %s n: %d file: %s",
+	     ins->name->s_name, n, filename));
   int file_size;
   int size=0;
   float buf;
@@ -283,14 +295,14 @@ void open_file_to_ar(t_ins *ins, int n, const char *filename)
   file_size = (int)ftell(fd) / sizeof(float);
   fseek(fd, 0, SEEK_SET);
   /* size ar */
-  size = pd_open_array(ins->ar[n].name, &w ,&g);
+  size = sss_pd_open_array(ins->ar[n].name, &w ,&g);
   if (size <= 0)
     {
       post("sss: error: open array: %s", ins->ar[n].name->s_name);
       return;
     }
   garray_resize(g, file_size);
-  size = pd_open_array(ins->ar[n].name, &w ,&g);
+  size = sss_pd_open_array(ins->ar[n].name, &w ,&g);
   if (size != file_size)
     {
       post("sss: error: resize array: %s", ins->ar[n].name->s_name);
@@ -306,20 +318,22 @@ void open_file_to_ar(t_ins *ins, int n, const char *filename)
   fclose(fd);
 }
 
-void get_snap(t_ins *ins, int snap)
+void sss_get_snap(t_ins *ins, int snap)
 {
+  DEBUG(post("sss: debug: sss_get_snap"));
   for(int j=0; j<MAX_PAR; j++)
     {
       if (ins->par[j].ex == E_YES)
 	{
-	  ins->par[j].data[snap] = get_par(ins->par[j].snd);
+	  ins->par[j].data[snap] = sss_get_par(ins->par[j].snd);
 	}
     }
   ins->have_data[snap] = 1;
 }
 
-void erase_snap(t_ins *ins, int snap)
+void sss_erase_snap(t_ins *ins, int snap)
 {
+  DEBUG(post("sss: debug: sss_erase_snap"));
   for(int j=0; j<MAX_PAR; j++)
     {
       if (ins->par[j].ex == E_YES)
@@ -330,13 +344,14 @@ void erase_snap(t_ins *ins, int snap)
   ins->have_data[snap] = 0;
 }
 
-void set_snap(t_ins *ins, int snap)
+void sss_set_snap(t_ins *ins, int snap)
 {
+  DEBUG(post("sss: debug: sss_set_snap"));
   for(int j=0; j<MAX_PAR; j++)
     {
       if (ins->par[j].ex == E_YES)
 	{
-	  set_par(ins->par[j].rcv, ins->par[j].data[snap]);
+	  sss_set_par(ins->par[j].rcv, ins->par[j].data[snap]);
 	}
     }
 }
@@ -345,6 +360,7 @@ void set_snap(t_ins *ins, int snap)
 // save / open pro
 void save_pro_to_file(t_sss *x)
 {
+  DEBUG(post("sss: debug: save_pro_to_file"));
   char buf[SIZE_PRO];
   char bufs[MAX_STRING];
   FILE *fd;
@@ -436,7 +452,7 @@ void save_pro_to_file(t_sss *x)
 			  x->pro_name->s_name,
 			  i, // ins num
 			  j); // ar num
-		  save_ar_to_file(&x->ins[i], j, (const char *)bufs);
+		  sss_save_ar_to_file(&x->ins[i], j, (const char *)bufs);
 		}
 	    }
 	}
@@ -445,6 +461,7 @@ void save_pro_to_file(t_sss *x)
 
 void open_file_pro(t_sss *x)
 {
+  DEBUG(post("sss: debug: open_file_pro"));
   char buf;
   char bufs[MAX_STRING];
   FILE *fd;
@@ -473,7 +490,7 @@ void open_file_pro(t_sss *x)
 		      x->pro_name->s_name,
 		      i, // ins num
 		      j); // snap num
-	      open_file_to_snap(&x->ins[i], j, (const char *)bufs);
+	      sss_open_file_to_snap(&x->ins[i], j, (const char *)bufs);
 	      if (buf == 2)
 		x->ins[i].sel_snap = j;
 	    }
@@ -494,7 +511,7 @@ void open_file_pro(t_sss *x)
 		      x->pro_name->s_name,
 		      i, // ins num
 		      j); // ar num
-	      open_file_to_ar(&x->ins[i], j, (const char *)bufs);
+	      sss_open_file_to_ar(&x->ins[i], j, (const char *)bufs);
 	    }
 	}
     }
@@ -504,6 +521,7 @@ void open_file_pro(t_sss *x)
 ////////////////////////////////////////////////////////////////////////////////
 void sss_init(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_init"));
   char buf[MAX_STRING];
   /* var */
   x->focus = 0;
@@ -564,6 +582,7 @@ void sss_init(t_sss *x)
 // clear data. free data for arrays
 void sss_init_mem(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_init_mem"));
   /* ins */
   for (int i=0; i<MAX_INS; i++)
     {
@@ -582,12 +601,14 @@ void sss_init_mem(t_sss *x)
 // abs_name
 void sss_abs_name(t_sss *x, t_symbol *s)
 {
+  DEBUG(post("sss: debug: sss_abs_name"));
   x->abs_name = s;
 }
 
 // get env sss and make path
 void sss_path(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_path"));
   char buf[MAX_STRING];
   // env
   char *var = getenv(ENV_PD_SSS);
@@ -603,23 +624,23 @@ void sss_path(t_sss *x)
     }
 
   // ex or cr
-  if (exorcr_dir(x->path_sss) != E_OK) { return; }
+  if (sss_exorcr_dir(x->path_sss) != E_OK) { return; }
 
   sprintf(buf, "%s/pro", x->path_sss->s_name);
   x->path_allpro = gensym(buf);
-  if (exorcr_dir(x->path_allpro) != E_OK) { return; }
+  if (sss_exorcr_dir(x->path_allpro) != E_OK) { return; }
 
   sprintf(buf, "%s/snap", x->path_sss->s_name);
   x->path_allsnap = gensym(buf);
-  if (exorcr_dir(x->path_allsnap)!= E_OK) { return; }
+  if (sss_exorcr_dir(x->path_allsnap)!= E_OK) { return; }
 
   sprintf(buf, "%s/ar", x->path_sss->s_name);
   x->path_allar = gensym(buf);
-  if (exorcr_dir(x->path_allar)!= E_OK) { return; }
+  if (sss_exorcr_dir(x->path_allar)!= E_OK) { return; }
 
   sprintf(buf, "%s/pro/%s", x->path_sss->s_name, x->abs_name->s_name);
   x->path_pro = gensym(buf);
-  if (exorcr_dir(x->path_pro) != E_OK) { return; }
+  if (sss_exorcr_dir(x->path_pro) != E_OK) { return; }
 
   for (int i=0; i<MAX_INS; i++)
     {
@@ -627,7 +648,7 @@ void sss_path(t_sss *x)
 	{
 	  sprintf(buf, "%s/snap/%s", x->path_sss->s_name, x->ins[i].name->s_name);
 	  x->ins[i].path_snap = gensym(buf);
-	  if (exorcr_dir(x->ins[i].path_snap) != E_OK) { return; }
+	  if (sss_exorcr_dir(x->ins[i].path_snap) != E_OK) { return; }
 	}
     }
 
@@ -648,7 +669,7 @@ void sss_path(t_sss *x)
 	    {
 	      sprintf(buf, "%s/ar/%s", x->path_sss->s_name, x->ins[i].name->s_name);
 	      x->ins[i].path_snap = gensym(buf);
-	      if (exorcr_dir(x->ins[i].path_snap) != E_OK) { return; }
+	      if (sss_exorcr_dir(x->ins[i].path_snap) != E_OK) { return; }
 	    }
 	}
     }
@@ -656,6 +677,7 @@ void sss_path(t_sss *x)
 
 void sss_get_info_par_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
 {
+  DEBUG(post("sss: debug: sss_get_info_par_return"));
   char buf[MAX_STRING];
 
   t_symbol *ins_name = atom_getsymbolarg(0, ac, av);
@@ -709,6 +731,7 @@ void sss_get_info_par_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
 
 void sss_get_info_ar_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
 {
+  DEBUG(post("sss: debug: sss_get_info_ar_return"));
   t_symbol *ins_name = atom_getsymbolarg(0, ac, av);
   int localzero      = atom_getfloatarg(1, ac, av);
   int globalzero     = atom_getfloatarg(2, ac, av);
@@ -748,6 +771,7 @@ void sss_get_info_ar_return(t_sss *x, t_symbol *s, int ac, t_atom *av)
 
 void sss_test(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_test"));
   for (int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
@@ -756,7 +780,7 @@ void sss_test(t_sss *x)
 	    {
 	      if (x->ins[i].par[j].ex == E_YES)
 		{
-		  get_par(x->ins[i].par[j].snd);
+		  sss_get_par(x->ins[i].par[j].snd);
 		}
 	    }
 	}
@@ -818,6 +842,7 @@ void sss_info(t_sss *x)
 
 void sss_set_abs_name(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_set_abs_name"));
   t_atom a[1];
   SETSYMBOL(a, x->abs_name);
   if (x->s_cnv_abs_name->s_thing)
@@ -826,6 +851,7 @@ void sss_set_abs_name(t_sss *x)
 
 void sss_set_pro_name(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_set_pro_name"));
   t_atom a[1];
   SETSYMBOL(a, x->pro_name);
   if (x->s_cnv_pro_name->s_thing)
@@ -834,6 +860,7 @@ void sss_set_pro_name(t_sss *x)
 
 void sss_set_ins_name(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_set_ins_name"));
   char buf[MAX_STRING];
   sprintf(buf, "(%d)%s", x->focus, x->ins[x->focus].name->s_name);
   t_atom a[1];
@@ -844,24 +871,28 @@ void sss_set_ins_name(t_sss *x)
 
 void sss_set_pro_path(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_set_pro_path"));
   if (x->s_path_pro->s_thing)
     pd_symbol(x->s_path_pro->s_thing, x->path_pro);
 }
 
 void sss_set_snap_path(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_set_snap_path"));
   if (x->s_path_snap->s_thing)
     pd_symbol(x->s_path_snap->s_thing, x->ins[x->focus].path_snap);
 }
 
 void sss_set_sel_snap(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_set_sel_snap"));
   if (x->s_sel_snap->s_thing)
     pd_float(x->s_sel_snap->s_thing, (t_float)x->ins[x->focus].sel_snap);
 }
 
 void sss_set_have_data(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_set_have_data"));
   if (x->s_have_data->s_thing)
     {
       t_atom a[MAX_SNAP];
@@ -873,6 +904,7 @@ void sss_set_have_data(t_sss *x)
 
 void sss_calc_focus(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_calc_focus"));
   for (int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
@@ -887,6 +919,7 @@ void sss_calc_focus(t_sss *x)
 
 void sss_focus(t_sss *x, t_floatarg f)
 {
+  DEBUG(post("sss: debug: sss_focus: %g", f));
   x->focus = (f<0)?0:(f>MAX_INS-1)?MAX_INS-1:f;
 }
 
@@ -894,31 +927,35 @@ void sss_focus(t_sss *x, t_floatarg f)
 // snap
 void sss_snap(t_sss *x, t_floatarg f1, t_floatarg f2)
 {
+  DEBUG(post("sss: debug: sss_snap"));
   int ins  = (f1<0)?0:(f1>MAX_INS-1)?MAX_INS-1:f1;
   int snap = (f2<0)?0:(f2>MAX_SNAP-1)?MAX_SNAP-1:f2;
   x->ins[ins].sel_snap = snap;
-  set_snap(&x->ins[ins], snap);
+  sss_set_snap(&x->ins[ins], snap);
 }
 
 void sss_sel_snap(t_sss *x, t_floatarg f)
 {
+  DEBUG(post("sss: debug: sss_sel_snap"));
   x->ins[x->focus].sel_snap = (f<0)?0:(f>MAX_SNAP-1)?MAX_SNAP-1:f;
-  set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
+  sss_set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
 }
 
 void sss_snap_copy(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_snap_copy"));
   for(int j=0; j<MAX_PAR; j++)
     {
       if (x->ins[x->focus].par[j].ex == E_YES)
 	{
-	  x->buf_par[j] = get_par(x->ins[x->focus].par[j].snd);
+	  x->buf_par[j] = sss_get_par(x->ins[x->focus].par[j].snd);
 	}
     }
 }
 
 void sss_snap_paste(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_snap_paste"));
   for(int j=0; j<MAX_PAR; j++)
     {
       if (x->ins[x->focus].par[j].ex == E_YES)
@@ -926,45 +963,51 @@ void sss_snap_paste(t_sss *x)
 	  x->ins[x->focus].par[j].data[x->ins[x->focus].sel_snap] = x->buf_par[j];
 	}
     }
-  set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
+  sss_set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
 }
 
 void sss_snap_save(t_sss *x)
 {
-  get_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
+  DEBUG(post("sss: debug: sss_snap_save"));
+  sss_get_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
 }
 
 void sss_snap_erase(t_sss *x)
 {
-  erase_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
-  set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
+  DEBUG(post("sss: debug: sss_snap_erase"));
+  sss_erase_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
+  sss_set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
 }
 
 void sss_snap_save_as(t_sss *x, t_symbol *s)
 {
+  DEBUG(post("sss: debug: sss_snap_save_as: %s", s->s_name));
   save_snap_to_file(&x->ins[x->focus], x->ins[x->focus].sel_snap, s->s_name);
 }
 
 void sss_snap_open(t_sss *x, t_symbol *s)
 {
-  open_file_to_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap, s->s_name);
-  set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
+  DEBUG(post("sss: debug: sss_snap_open: %s", s->s_name));
+  sss_open_file_to_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap, s->s_name);
+  sss_set_snap(&x->ins[x->focus], x->ins[x->focus].sel_snap);
 }
 
 void sss_snap_load(t_sss *x, t_floatarg ni, t_floatarg ns)
 {
+  DEBUG(post("sss: debug: sss_snap_load"));
   int ins  = (ni<0)?0:(ni>MAX_INS-1)?MAX_INS-1:ni;
   int snap = (ns<0)?0:(ns>MAX_SNAP-1)?MAX_SNAP-1:ns;
-  set_snap(&x->ins[ins], snap);
+  sss_set_snap(&x->ins[ins], snap);
 }
 
 void sss_snap_load_all_sel(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_snap_load_all_sel"));
   for (int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
 	{
-	  set_snap(&x->ins[i], x->ins[i].sel_snap);
+	  sss_set_snap(&x->ins[i], x->ins[i].sel_snap);
 	}
     }
 }
@@ -973,12 +1016,13 @@ void sss_snap_load_all_sel(t_sss *x)
 // pro
 void sss_pro_save(t_sss *x)
 {
+  DEBUG(post("sss: debug: sss_pro_save"));
   // save all have data
   for(int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
 	{
-	  get_snap(&x->ins[i], x->ins[i].sel_snap);
+	  sss_get_snap(&x->ins[i], x->ins[i].sel_snap);
 	}
     }
   save_pro_to_file(x);
@@ -986,13 +1030,14 @@ void sss_pro_save(t_sss *x)
 
 void sss_pro_save_as(t_sss *x, t_symbol *s)
 {
+  DEBUG(post("sss: debug: sss_pro_save_as"));
   x->pro_name = s;
   // save all have data
   for(int i=0; i<MAX_INS; i++)
     {
       if (x->ins[i].ex == E_YES)
 	{
-	  get_snap(&x->ins[i], x->ins[i].sel_snap);
+	  sss_get_snap(&x->ins[i], x->ins[i].sel_snap);
 	}
     }
   save_pro_to_file(x);
@@ -1019,17 +1064,17 @@ void sss_rnd_nbx(t_sss *x)
 	{
 	  if (!strcmp(x->ins[x->focus].par[j].type->s_name, "nbx"))
 	    {
-	      t_float f = rndf(&x->seed);
+	      t_float f = sss_rndf(&x->seed);
 	      f = (f-0.5) * x->rnd_amt;
 	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
 	      f = dif * f;
-	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      t_float cur = sss_get_par(x->ins[x->focus].par[j].snd);
 	      cur = cur + f;
 	      if (cur < x->ins[x->focus].par[j].min)
 		cur = x->ins[x->focus].par[j].min;
 	      if (cur > x->ins[x->focus].par[j].max)
 		cur = x->ins[x->focus].par[j].max;
-	      set_par(x->ins[x->focus].par[j].rcv, cur);
+	      sss_set_par(x->ins[x->focus].par[j].rcv, cur);
 	    }
 	}
     }
@@ -1044,17 +1089,17 @@ void sss_rnd_slider(t_sss *x)
 	  if ((!strcmp(x->ins[x->focus].par[j].type->s_name, "hsl")) ||
 	      (!strcmp(x->ins[x->focus].par[j].type->s_name, "vsl")))
 	    {
-	      t_float f = rndf(&x->seed);
+	      t_float f = sss_rndf(&x->seed);
 	      f = (f-0.5) * x->rnd_amt;
 	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
 	      f = dif * f;
-	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      t_float cur = sss_get_par(x->ins[x->focus].par[j].snd);
 	      cur = cur + f;
 	      if (cur < x->ins[x->focus].par[j].min)
 		cur = x->ins[x->focus].par[j].min;
 	      if (cur > x->ins[x->focus].par[j].max)
 		cur = x->ins[x->focus].par[j].max;
-	      set_par(x->ins[x->focus].par[j].rcv, cur);
+	      sss_set_par(x->ins[x->focus].par[j].rcv, cur);
 	    }
 	}
     }
@@ -1068,12 +1113,12 @@ void sss_rnd_tgl(t_sss *x)
 	{
 	  if ((!strcmp(x->ins[x->focus].par[j].type->s_name, "tgl")))
 	    {
-	      t_float f = rndf(&x->seed);
+	      t_float f = sss_rndf(&x->seed);
 	      if (f>0.65)
 		f = 1;
 	      else
 		f = 0;
-	      set_par(x->ins[x->focus].par[j].rcv, f);
+	      sss_set_par(x->ins[x->focus].par[j].rcv, f);
 	    }
 	}
     }
@@ -1088,17 +1133,17 @@ void sss_rnd_radio(t_sss *x)
 	  if ((!strcmp(x->ins[x->focus].par[j].type->s_name, "hrd")) ||
 	      (!strcmp(x->ins[x->focus].par[j].type->s_name, "vrd")))
 	    {
-	      t_float f = rndf(&x->seed);
+	      t_float f = sss_rndf(&x->seed);
 	      f = (f-0.5) * x->rnd_amt;
 	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
 	      f = dif * f;
-	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      t_float cur = sss_get_par(x->ins[x->focus].par[j].snd);
 	      cur = cur + f;
 	      if (cur < x->ins[x->focus].par[j].min)
 		cur = x->ins[x->focus].par[j].min;
 	      if (cur > x->ins[x->focus].par[j].max)
 		cur = x->ins[x->focus].par[j].max;
-	      set_par(x->ins[x->focus].par[j].rcv, (int)cur);
+	      sss_set_par(x->ins[x->focus].par[j].rcv, (int)cur);
 	    }
 	}
     }
@@ -1112,17 +1157,17 @@ void sss_rnd_nknob(t_sss *x)
 	{
 	  if (!strcmp(x->ins[x->focus].par[j].type->s_name, "n_knob"))
 	    {
-	      t_float f = rndf(&x->seed);
+	      t_float f = sss_rndf(&x->seed);
 	      f = (f-0.5) * x->rnd_amt;
 	      t_float dif = x->ins[x->focus].par[j].max - x->ins[x->focus].par[j].min;
 	      f = dif * f;
-	      t_float cur = get_par(x->ins[x->focus].par[j].snd);
+	      t_float cur = sss_get_par(x->ins[x->focus].par[j].snd);
 	      cur = cur + f;
 	      if (cur < x->ins[x->focus].par[j].min)
 		cur = x->ins[x->focus].par[j].min;
 	      if (cur > x->ins[x->focus].par[j].max)
 		cur = x->ins[x->focus].par[j].max;
-	      set_par(x->ins[x->focus].par[j].rcv, cur);
+	      sss_set_par(x->ins[x->focus].par[j].rcv, cur);
 	    }
 	}
     }
@@ -1132,6 +1177,7 @@ void sss_rnd_nknob(t_sss *x)
 // setup
 void *sss_new(t_symbol *s, int ac, t_atom *av)
 {
+  DEBUG(post("sss: debug: sss_new"));
   t_sss *x = (t_sss *)pd_new(sss_class);
   outlet_new(&x->x_obj, 0);
   x->localzero = atom_getfloatarg(0, ac, av);
